@@ -14,10 +14,10 @@ export class AuthDto{
 
     @ApiProperty({enum:AuthMethod})
     @IsEnum(AuthMethod)
-    method:string
+    method:AuthMethod
 
 
     @ApiProperty({enum:AuthType})
     @IsEnum(AuthType)
-    type:string
+    type:AuthType
 }
