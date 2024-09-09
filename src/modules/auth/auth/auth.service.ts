@@ -4,14 +4,21 @@ import { AuthType } from './enums/type.enums';
 import { AuthMethod } from './enums/method.enums';
 import { isEmail, isMobilePhone } from 'class-validator';
 import { UserEntity } from 'src/modules/user/user/entities/user.entity';
-import { Repository } from 'typeorm';
+import { Code, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
+import { OtpEntity } from 'src/modules/user/user/entities/otp.entity';
+import { ProfileEntity } from 'src/modules/user/user/entities/profile.entity';
+import { randomInt } from 'crypto';
 
 @Injectable()
 export class AuthService {
 
-    constructor(@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>) { }
+    constructor(
+        @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+        @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
+        @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    ) { }
 
 
     userExistence(AuthDto: AuthDto) {
@@ -33,27 +40,54 @@ export class AuthService {
 
     async login(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
-        let user : UserEntity =await this.checkExistUser(method,validatedUsername)
+        let user: UserEntity = await this.checkExistUser(method, validatedUsername)
         if (!user) {
             throw new UnauthorizedException(AuthMessage.NotFoundAccount)
         }
+        const otp = await this.createAndSaveOtp(user.id)
+        return otp.code
 
 
 
     }
-
-
-
 
     async register(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
-        let user : UserEntity =await this.checkExistUser(method,validatedUsername)
+        let user: UserEntity = await this.checkExistUser(method, validatedUsername)
         if (!user) {
             throw new ConflictException(AuthMessage.AlreadyExistAccount)
         }
-
+        user = this.userRepository.create({ [method]: username })
+        const otp = await this.createAndSaveOtp(user.id)
+        return otp.code
     }
 
+
+    async createAndSaveOtp(userId: number) {
+        const code = randomInt(10000, 99999).toString()
+        const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2)
+        let existOtp = false
+        let otp = await this.otpRepository.findOneBy({ userId })
+        if (otp) {
+            existOtp = true
+            otp.code = code
+            otp.expiresIn = expiresIn
+        } else {
+            otp = this.otpRepository.create({
+                code,
+                expiresIn,
+                userId
+            })
+        }
+        if (!existOtp) {
+            await this.userRepository.update({ id: userId }, { otpId: otp.id })
+        }
+
+        await this.otpRepository.save(otp)
+        return otp
+
+
+    }
 
 
 
@@ -68,11 +102,11 @@ export class AuthService {
             let user = await this.userRepository.findOneBy({ email: username })
         }
         else if (method === AuthMethod.Username) {
-            let user = await this.userRepository.findOneBy({  username })
+            let user = await this.userRepository.findOneBy({ username })
         } else {
             throw new BadRequestException(BadRequestMessage.InValidLoginData)
         }
-        return user 
+        return user
     }
 
 

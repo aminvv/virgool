@@ -1,6 +1,7 @@
 import { BaseEntityCustom } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { Entity ,Column, CreateDateColumn, UpdateDateColumn} from "typeorm";
+import { Entity ,Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn} from "typeorm";
+import { OtpEntity } from "./otp.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntityCustom {
@@ -23,5 +24,11 @@ export class UserEntity extends BaseEntityCustom {
     @UpdateDateColumn()
     update_at:Date
 
+    @Column()
+    otpId:number
+
+    @OneToOne(()=>OtpEntity,(otp)=>otp.user)
+    @JoinColumn({name:"otpId"})
+    otp:OtpEntity
 
 }
