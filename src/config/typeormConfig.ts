@@ -1,4 +1,7 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { OtpEntity } from "src/modules/user/user/entities/otp.entity";
+import { ProfileEntity } from "src/modules/user/user/entities/profile.entity";
+import { UserEntity } from "src/modules/user/user/entities/user.entity";
 
 
 export function TypeOrmConfig(): TypeOrmModuleOptions {
@@ -10,7 +13,7 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
         username: DB_USERNAME,
         password: DB_PASSWORD,
         autoLoadEntities: false,
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        entities: [UserEntity,OtpEntity,ProfileEntity],
         synchronize: true,
         type: 'postgres',
     }

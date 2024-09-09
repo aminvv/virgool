@@ -54,10 +54,14 @@ export class AuthService {
     async register(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
-        if (!user) {
+        
+        if (user) {
             throw new ConflictException(AuthMessage.AlreadyExistAccount)
         }
-        user = this.userRepository.create({ [method]: username })
+        user = this.userRepository.create({ [method]: username ,username})
+        console.log('user=', {[method]:username});
+         user=await this. userRepository.save(user)
+       
         const otp = await this.createAndSaveOtp(user.id)
         return otp.code
     }
@@ -95,14 +99,14 @@ export class AuthService {
 
     async checkExistUser(method: AuthMethod, username: string) {
         let user: UserEntity
-        if (method === AuthMethod.Mobile) {
-            let user = await this.userRepository.findOneBy({ phone: username })
+        if (method === AuthMethod.phone) {
+             user = await this.userRepository.findOneBy({ phone: username })
         }
         else if (method === AuthMethod.Email) {
-            let user = await this.userRepository.findOneBy({ email: username })
+             user = await this.userRepository.findOneBy({ email: username })
         }
         else if (method === AuthMethod.Username) {
-            let user = await this.userRepository.findOneBy({ username })
+             user = await this.userRepository.findOneBy({ username })
         } else {
             throw new BadRequestException(BadRequestMessage.InValidLoginData)
         }
@@ -116,7 +120,7 @@ export class AuthService {
                 if (isEmail(username)) return username
                 throw new BadRequestException("email format is incorrect")
             }
-            case AuthMethod.Mobile: {
+            case AuthMethod.phone: {
                 if (isMobilePhone(username)) return username
                 throw new BadRequestException("mobile format is incorrect")
             }

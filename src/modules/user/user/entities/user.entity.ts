@@ -5,7 +5,7 @@ import { OtpEntity } from "./otp.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntityCustom {
-    @Column({unique:true})
+    @Column({unique:true ,nullable:true})
     username:string
 
     @Column({unique:true,nullable:true})
@@ -24,7 +24,7 @@ export class UserEntity extends BaseEntityCustom {
     @UpdateDateColumn()
     update_at:Date
 
-    @Column()
+    @Column({nullable:true})
     otpId:number
 
     @OneToOne(()=>OtpEntity,(otp)=>otp.user)
