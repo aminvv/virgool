@@ -11,12 +11,14 @@ export class UserEntity extends BaseEntityCustom {
     @Column({unique:true,nullable:true})
     phone:string
 
-    @Column({nullable:true})
-    password:string
-
-
+    
     @Column({unique:true,nullable:true})
     email:string
+    
+    
+    @Column({nullable:true})
+    password:string
+    
 
     @CreateDateColumn()
     create_at:Date  
@@ -27,7 +29,7 @@ export class UserEntity extends BaseEntityCustom {
     @Column({nullable:true})
     otpId:number
 
-    @OneToOne(()=>OtpEntity,(otp)=>otp.user)
+    @OneToOne(()=>OtpEntity,otp=>otp.user,{nullable:true})
     @JoinColumn({name:"otpId"})
     otp:OtpEntity
 

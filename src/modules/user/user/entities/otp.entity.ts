@@ -13,10 +13,10 @@ export class OtpEntity extends BaseEntityCustom{
     @Column()
     userId:number
 
-    @Column({nullable:true})
+    @Column()
     expiresIn:Date
     
-    @OneToOne(()=>UserEntity,(user)=>user.otp)
+    @OneToOne(()=>UserEntity,user=>user.otp,{onDelete:"CASCADE"})
     user:UserEntity
 
 

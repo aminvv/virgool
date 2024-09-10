@@ -41,30 +41,70 @@ export class AuthService {
     async login(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
-        if (!user) {
-            throw new UnauthorizedException(AuthMessage.NotFoundAccount)
-        }
+        if (!user) {throw new UnauthorizedException(AuthMessage.NotFoundAccount)}
         const otp = await this.createAndSaveOtp(user.id)
         return otp.code
-
-
+        
+        
 
     }
 
     async register(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
-        
-        if (user) {
-            throw new ConflictException(AuthMessage.AlreadyExistAccount)
+        if (user) {throw new ConflictException(AuthMessage.AlreadyExistAccount)}
+        if(AuthMethod.Username === method){
+            throw new BadRequestException(BadRequestMessage.InValidRegisterData)
         }
-        user = this.userRepository.create({ [method]: username ,username})
-        console.log('user=', {[method]:username});
+        user = this.userRepository.create({ [method]: username })
          user=await this. userRepository.save(user)
-       
+            user.username= `Us-${user.id}`
+            await this. userRepository.save(user)
         const otp = await this.createAndSaveOtp(user.id)
         return otp.code
     }
+
+    usernameValidator(method: AuthMethod, username: string) {
+        switch (method) {
+            case AuthMethod.Email: {
+                if (isEmail(username)) return username
+                throw new BadRequestException("email format is incorrect")
+            }
+            case AuthMethod.phone: {
+                if (isMobilePhone(username)) return username
+                throw new BadRequestException("mobile format is incorrect")
+            }
+            case AuthMethod.Username: {
+                return username
+
+            }
+
+            default:
+                throw new UnauthorizedException()
+
+        }
+    }
+
+    
+    
+    async checkExistUser(method: AuthMethod, username: string) {
+        let user: UserEntity
+        if (method === AuthMethod.phone) {
+             user = await this.userRepository.findOneBy({ phone: username })
+        } 
+        else if (method === AuthMethod.Email) {
+             user = await this.userRepository.findOneBy({ email: username })
+        }
+        else if (method === AuthMethod.Username) {
+             user = await this.userRepository.findOneBy({ username })
+        } else {
+            throw new BadRequestException(BadRequestMessage.InValidLoginData)
+        }
+        return user
+    }
+    
+    
+    
 
 
     async createAndSaveOtp(userId: number) {
@@ -83,54 +123,14 @@ export class AuthService {
                 userId
             })
         }
+        otp=await this.otpRepository.save(otp)
         if (!existOtp) {
             await this.userRepository.update({ id: userId }, { otpId: otp.id })
         }
-
-        await this.otpRepository.save(otp)
         return otp
-
-
-    }
-
-
-
-
-
-    async checkExistUser(method: AuthMethod, username: string) {
-        let user: UserEntity
-        if (method === AuthMethod.phone) {
-             user = await this.userRepository.findOneBy({ phone: username })
-        }
-        else if (method === AuthMethod.Email) {
-             user = await this.userRepository.findOneBy({ email: username })
-        }
-        else if (method === AuthMethod.Username) {
-             user = await this.userRepository.findOneBy({ username })
-        } else {
-            throw new BadRequestException(BadRequestMessage.InValidLoginData)
-        }
-        return user
-    }
-
-
-    usernameValidator(method: AuthMethod, username: string) {
-        switch (method) {
-            case AuthMethod.Email: {
-                if (isEmail(username)) return username
-                throw new BadRequestException("email format is incorrect")
-            }
-            case AuthMethod.phone: {
-                if (isMobilePhone(username)) return username
-                throw new BadRequestException("mobile format is incorrect")
-            }
-            case AuthMethod.Username: {
-                return username
-
-            }
-
-            default:
-        }
+    
+    
+    
     }
 
 
