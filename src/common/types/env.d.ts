@@ -10,5 +10,10 @@ namespace NodeJS{
         DB_PASSWORD:string
         DB_NAME:string
 
+
+        //Token
+        COOKIE_SECRET:string
+        OTP_TOKEN_SECRET:string
+
     }
 } 
