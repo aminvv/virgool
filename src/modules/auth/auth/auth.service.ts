@@ -11,6 +11,9 @@ import { OtpEntity } from 'src/modules/user/user/entities/otp.entity';
 import { ProfileEntity } from 'src/modules/user/user/entities/profile.entity';
 import { randomInt } from 'crypto';
 import { TokenService } from './token.service';
+import { Response } from 'express';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { AuthResponse } from './enums/response';
 
 @Injectable()
 export class AuthService {
@@ -23,15 +26,18 @@ export class AuthService {
     ) { }
 
 
-    userExistence(AuthDto: AuthDto) {
+    async userExistence(AuthDto: AuthDto, res: Response) {
         const { method, type, username } = AuthDto
+        let result:AuthResponse
         switch (type) {
             case AuthType.Login: {
-                return this.login(method, username)
+                 result=await  this.login(method, username)
+                 return this.sendResponse(res,result)
             }
 
             case AuthType.Register: {
-                return this.register(method, username)
+                 result= await this.register(method, username)
+                 return this.sendResponse(res,result)
             }
 
             default:
@@ -40,15 +46,27 @@ export class AuthService {
         }
     }
 
+
+
+    async sendResponse(res:Response ,result:AuthResponse){
+        const{token,code}=result
+        res.cookie(CookieKeys.OTP,token,{httpOnly:true})
+        res.json({
+            token,
+            code
+        })
+    }
+
     async login(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
         if (!user) { throw new UnauthorizedException(AuthMessage.NotFoundAccount) }
         const otp = await this.createAndSaveOtp(user.id)
+        const token=this.tokenService.createOtpToken({userId:user.id})
         return {
-
+            token,
             code: otp.code,
-            userId: user.id
+           
         }
 
 
@@ -67,11 +85,13 @@ export class AuthService {
         user.username = `Us-${user.id}`
         await this.userRepository.save(user)
         const otp = await this.createAndSaveOtp(user.id)
+        const token=this.tokenService.createOtpToken({userId:user.id})
+
         return {
 
             code: otp.code,
-            userId: user.id
-        }
+            token
+            }
     }
 
     usernameValidator(method: AuthMethod, username: string) {
@@ -117,7 +137,7 @@ export class AuthService {
 
 
 
-    async createAndSaveOtp(userId: number) {
+    async createAndSaveOtp(userId: number) {  
         const code = randomInt(10000, 99999).toString()
         const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2)
         let existOtp = false
