@@ -54,7 +54,7 @@ export class AuthService {
         const{token,code}=result
         res.cookie(CookieKeys.OTP,token,{
             httpOnly:true,
-            expires:new Date(new Date().getTime()+1000*60*2)
+            expires:new Date( Date.now() +(1000*60*2))
         })
         res.json({
             token,
@@ -70,8 +70,11 @@ export class AuthService {
             if(!otp)throw new UnauthorizedException(AuthMessage.loginAgain)
                 if(otp.expiresIn < new Date())throw new UnauthorizedException(AuthMessage.TryAgain)
                     if(otp.code !== code)throw new UnauthorizedException(AuthMessage.TryAgain)
+                        const  accessToken=this.tokenService.createAccessToken({userId})
                         return {
-                            message:publicMessage.loggedIn
+                            message:publicMessage.loggedIn,
+                            accessToken
+
                         }
 
     }
