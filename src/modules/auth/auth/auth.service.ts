@@ -6,7 +6,7 @@ import { isEmail, isMobilePhone } from 'class-validator';
 import { UserEntity } from 'src/modules/user/user/entities/user.entity';
 import { Code, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthMessage, BadRequestMessage } from 'src/common/enums/message.enum';
+import { AuthMessage, BadRequestMessage, publicMessage } from 'src/common/enums/message.enum';
 import { OtpEntity } from 'src/modules/user/user/entities/otp.entity';
 import { ProfileEntity } from 'src/modules/user/user/entities/profile.entity';
 import { randomInt } from 'crypto';
@@ -52,17 +52,28 @@ export class AuthService {
 
     async sendResponse(res:Response ,result:AuthResponse){
         const{token,code}=result
-        res.cookie(CookieKeys.OTP,token,{httpOnly:true})
+        res.cookie(CookieKeys.OTP,token,{
+            httpOnly:true,
+            expires:new Date(new Date().getTime()+1000*60*2)
+        })
         res.json({
             token,
             code
         })
     }
 
-    checkOtp(code:string){
+    async checkOtp(code:string){
         const token= this.request.cookies?.[CookieKeys.OTP]
         if(!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
-            return token
+            const {userId}=this.tokenService.verifyOtpToken(token)
+            const otp=await this.otpRepository.findOneBy({userId})
+            if(!otp)throw new UnauthorizedException(AuthMessage.loginAgain)
+                if(otp.expiresIn < new Date())throw new UnauthorizedException(AuthMessage.TryAgain)
+                    if(otp.code !== code)throw new UnauthorizedException(AuthMessage.TryAgain)
+                        return {
+                            message:publicMessage.loggedIn
+                        }
+
     }
 
     async login(method: AuthMethod, username: string) {
