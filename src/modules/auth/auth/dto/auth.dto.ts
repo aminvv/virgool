@@ -21,3 +21,13 @@ export class AuthDto{
     @IsEnum(AuthType)
     type:AuthType
 }
+
+
+export class CheckOtpDto{
+
+    @ApiProperty()
+    @IsString()
+    @Length(5,5)
+    code:string
+    
+}

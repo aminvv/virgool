@@ -8,7 +8,9 @@ export enum BadRequestMessage{
 
 export enum AuthMessage{
 NotFoundAccount="حساب کاربری یافت نشد",
-AlreadyExistAccount="حساب کاربری با این مشخصات وجود دارد"
+AlreadyExistAccount="حساب کاربری با این مشخصات وجود دارد",
+ExpiredCode="کد تایید منقضی شده مجددا تلاش کنید",
+TryAgain="دوباره تلاش کنید",
 }
 
 export enum NotFoundMessage{
@@ -17,4 +19,8 @@ export enum NotFoundMessage{
 
 export enum ValidationMessage{
 
+}
+
+export enum publicMessage{
+    SendOtp="کد یکبار مصرف با موفقیت ارسال شد"
 }

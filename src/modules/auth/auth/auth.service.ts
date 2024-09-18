@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Scope, UnauthorizedException } from '@nestjs/common';
 import { AuthDto } from './dto/auth.dto';
 import { AuthType } from './enums/type.enums';
 import { AuthMethod } from './enums/method.enums';
@@ -11,14 +11,16 @@ import { OtpEntity } from 'src/modules/user/user/entities/otp.entity';
 import { ProfileEntity } from 'src/modules/user/user/entities/profile.entity';
 import { randomInt } from 'crypto';
 import { TokenService } from './token.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './enums/response';
+import { REQUEST } from '@nestjs/core';
 
-@Injectable()
+@Injectable({scope:Scope.REQUEST})
 export class AuthService {
 
     constructor(
+        @Inject(REQUEST) private request:Request,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
         @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
@@ -57,6 +59,12 @@ export class AuthService {
         })
     }
 
+    checkOtp(code:string){
+        const token= this.request.cookies?.[CookieKeys.OTP]
+        if(!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
+            return token
+    }
+
     async login(method: AuthMethod, username: string) {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
@@ -87,7 +95,7 @@ export class AuthService {
         const otp = await this.createAndSaveOtp(user.id)
         const token=this.tokenService.createOtpToken({userId:user.id})
 
-        return {
+        return { 
 
             code: otp.code,
             token
