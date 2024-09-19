@@ -11,7 +11,8 @@ NotFoundAccount="حساب کاربری یافت نشد",
 AlreadyExistAccount="حساب کاربری با این مشخصات وجود دارد",
 ExpiredCode="کد تایید منقضی شده مجددا تلاش کنید",
 TryAgain="دوباره تلاش کنید",
-loginAgain="مجددا وارد حساب کاربری خود شوید"
+loginAgain="مجددا وارد حساب کاربری خود شوید",
+loginRequired="وارد حساب کاربری خود شوید"
 }
 
 export enum NotFoundMessage{

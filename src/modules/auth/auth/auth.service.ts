@@ -156,9 +156,6 @@ export class AuthService {
     }
 
 
-
-
-
     async createAndSaveOtp(userId: number) {  
         const code = randomInt(10000, 99999).toString()
         const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2)
@@ -183,6 +180,14 @@ export class AuthService {
 
 
 
+    }
+
+    async validationAccessToken(token:string){
+        const {userId}= this.tokenService.VerifyAccessToken(token)
+        const user=await this.userRepository.findOneBy({id:userId})
+        if(!user)throw new UnauthorizedException(AuthMessage.loginAgain);
+        return user
+        
     }
 
 
