@@ -28,3 +28,7 @@ export enum publicMessage{
     loggedIn="با موفقیت وارد حساب خود شدید",
     created="با موفقیت ایجاد شد",
 }
+
+export enum ConflictMessage{
+    categoryTitle="عنوان دشته بندی قبلا ثبت شده"
+}
