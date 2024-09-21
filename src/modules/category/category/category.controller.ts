@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
+import { pagination } from 'src/common/decorators/pagination.decorator';
+import { paginationDto } from 'src/common/dtos/pagination.dto';
 
 @ApiTags('category')
 @Controller('category')
@@ -17,8 +19,9 @@ export class CategoryController {
   }
 
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  @pagination()
+  findAll(@Query() paginationDto:paginationDto) {
+    return this.categoryService.findAll(paginationDto);
   }
 
   @Get(':id')
