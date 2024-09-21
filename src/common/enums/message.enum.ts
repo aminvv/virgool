@@ -25,5 +25,6 @@ export enum ValidationMessage{
 
 export enum publicMessage{
     SendOtp="کد یکبار مصرف با موفقیت ارسال شد",
-    loggedIn="با موفقیت وارد حساب خود شدید"
+    loggedIn="با موفقیت وارد حساب خود شدید",
+    created="با موفقیت ایجاد شد",
 }
