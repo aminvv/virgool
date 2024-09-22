@@ -1,10 +1,10 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
 import { Repository } from 'typeorm';
-import { ConflictMessage, publicMessage } from 'src/common/enums/message.enum';
+import { ConflictMessage, NotFoundMessage, publicMessage } from 'src/common/enums/message.enum';
 import { paginationDto } from 'src/common/dtos/pagination.dto';
 import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
 import { take } from 'rxjs';
@@ -41,25 +41,37 @@ export class CategoryService {
       take: limit,
     });
     console.log("skip---------------",skip);
-    console.log("limit------------------",limit);
+    console.log("categories------------------",categories);
     
-
-
     return {
       pagination:paginationGenerator(count,page,limit),
       categories
 }
   }
 
-findOne(id: number) {
-  return `This action returns a #${id} category`;
+async findOne(id: number) {
+  const category=await this.categoryRepository.findBy({id})
+  if(!category)throw new NotFoundException(NotFoundMessage.NotFoundCategory)
+    return category
 }
 
-update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  return `This action updates a #${id} category`;
+async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  const category=await this.findOne(id) 
+  if(!category) {throw new NotFoundException(NotFoundMessage.NotFoundCategory)}
+    const{priority,title}=updateCategoryDto
+  await this.categoryRepository.update({id},{priority,title})
+  return {
+    message:publicMessage.Update
+  }
+
 }
 
-remove(id: number) {
-  return `This action removes a #${id} category`;
+async remove(id: number) {
+  const category= this.findOne(id) 
+  if(!category) {throw new NotFoundException(NotFoundMessage.NotFoundCategory)}
+    await this.categoryRepository.delete(id)
+  return {
+    message:publicMessage.Delete
+  }
 }
 }

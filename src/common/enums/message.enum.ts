@@ -16,6 +16,10 @@ loginRequired="وارد حساب کاربری خود شوید"
 }
 
 export enum NotFoundMessage{
+    NotFound="موردی یافت نشد",
+    NotFoundCategory=" دسته بندی یافت تشد",
+    NotFoundPost="مقاله ای یافت نشد",
+    NotFoundUser=" کاریری یافت نشد",
 
 }
 
@@ -27,6 +31,9 @@ export enum publicMessage{
     SendOtp="کد یکبار مصرف با موفقیت ارسال شد",
     loggedIn="با موفقیت وارد حساب خود شدید",
     created="با موفقیت ایجاد شد",
+    Delete="با موفقیت حدف شد",
+    Update=" با موفقیت به روز رسانی شد",
+    Inserted=" با موفقیت درج شد ",
 }
 
 export enum ConflictMessage{

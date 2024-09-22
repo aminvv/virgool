@@ -25,16 +25,19 @@ export class CategoryController {
   }
 
   @Get(':id')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.MultiPartData)
   findOne(@Param('id') id: string) {
     return this.categoryService.findOne(+id);
   }
 
   @Patch(':id')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.MultiPartData)
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
   @Delete(':id')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.MultiPartData)  
   remove(@Param('id') id: string) { 
     return this.categoryService.remove(+id);
   }
