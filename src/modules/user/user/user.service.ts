@@ -20,7 +20,11 @@ export class UserService {
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
   ) { }
 
-  async changeProfile(profileDto: profileDto) {
+  async changeProfile(files:any, profileDto: profileDto) {
+
+    console.log(files);
+    
+
     const { id: userId, profileId } = this.request.user
     const { bio, birthday, gender, linkedin_profile, nick_name, x_profile } = profileDto
     let profile = await this.profileRepository.findOneBy({ id: userId })
