@@ -11,6 +11,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { Gender } from 'src/common/enums/gender.enum';
 import { isDate } from 'class-validator';
 import { publicMessage } from 'src/common/enums/message.enum';
+import { ProfileImage } from './types/files';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -21,22 +22,22 @@ export class UserService {
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
   ) { }
 
-  async changeProfile(files: any, profileDto: profileDto) {
+  async changeProfile(files: ProfileImage, profileDto: profileDto) {
 
-    let { bg_image, image_profile } = files
-    if (bg_image?.length > 0) {
-      let [image] = bg_image
-      profileDto.bg_image = image.path
+    if (files?.bg_image?.length > 0) {
+      let [image] =files?.bg_image
+      profileDto.bg_image = image?.path?.slice(7)
     }
-    if (image_profile?.length > 0) {
-      let [image] = image_profile
-      profileDto.image_profile = image.path
+    if (files?.image_profile?.length > 0) {
+      let [image] = files?.image_profile
+      profileDto.image_profile = image?.path?.slice(7)
     }
 
 
     const { id: userId, profileId } = this.request.user
-    const { bio, birthday, gender, linkedin_profile, nick_name, x_profile } = profileDto
-    let profile = await this.profileRepository.findOneBy({ id: userId })
+    let profile = await this.profileRepository.findOneBy({ userId })
+    
+    const { bio, birthday, gender, linkedin_profile, nick_name, x_profile ,bg_image,image_profile} = profileDto
     if (profile) {
       if (bio) profile.bio = bio
       if (gender && Object.values(Gender as any).includes(gender)) profile.gender = gender
@@ -45,9 +46,12 @@ export class UserService {
       if (x_profile) profile.x_profile = x_profile
       if (nick_name) profile.nick_name = nick_name
       if (image_profile) profile.image_profile = image_profile
-      if (bg_image) profile.bg_image = bg_image
-       
+      if (bg_image) profile.bg_image = bg_image 
       
+      
+  
+       
+    
     } else {
       profile = this.profileRepository.create({
         bio, birthday, gender, linkedin_profile, nick_name, x_profile, userId, image_profile,bg_image
@@ -60,8 +64,17 @@ export class UserService {
     if (!profileId) {
       await this.userRepository.update({ id: userId }, { profileId: profile.id })
     }
-    return publicMessage.Inserted
+ 
  
   }
+
+
+  profile(){
+    const{id}=this.request.user
+    return this.userRepository.findOne({
+      where: { id },
+      relations: ['profile']
+    });
+  }
 }
- 
+  
