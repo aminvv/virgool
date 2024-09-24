@@ -24,7 +24,7 @@ export enum NotFoundMessage{
 }
 
 export enum ValidationMessage{
-
+InvalidImageFormat="قرمت تصویر انتخاب شده باید از نوع  jpg ,png ,jpeg باشد"
 }
 
 export enum publicMessage{
