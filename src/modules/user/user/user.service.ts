@@ -64,7 +64,9 @@ export class UserService {
     if (!profileId) {
       await this.userRepository.update({ id: userId }, { profileId: profile.id })
     }
- 
+    return{
+      message:publicMessage.Update
+    }
  
   }
 
