@@ -13,6 +13,9 @@ export class OtpEntity extends BaseEntityCustom{
     @Column()
     userId:number
 
+    @Column({nullable:true})
+    method:string
+
     @Column()
     expiresIn:Date
     

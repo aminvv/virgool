@@ -1,6 +1,7 @@
-import { ApiPropertyOptional } from "@nestjs/swagger"
-import { Length } from "class-validator"
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
+import { IsEmail,  Length ,IsMobilePhone} from "class-validator"
 import { Gender } from "src/common/enums/gender.enum"
+import { ValidationMessage } from "src/common/enums/message.enum"
 
  export class profileDto{
     @ApiPropertyOptional()
@@ -30,3 +31,19 @@ import { Gender } from "src/common/enums/gender.enum"
     x_profile: string
 
  }
+
+
+ export class ChangEmailDto{
+  @ApiProperty()
+  @IsEmail(null,{message:ValidationMessage.InvalidEmailFormat})
+  email:string
+ }
+
+
+
+ export class ChangPhoneDto{
+   @ApiProperty()
+   @IsMobilePhone("fa-IR",{},{message:ValidationMessage.InvalidPhoneFormat})
+   Phone:string
+  }
+ 

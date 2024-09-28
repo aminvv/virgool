@@ -3,7 +3,8 @@
 
 export enum BadRequestMessage{
  InValidLoginData="اطلاعات ارسال شده برای ورود صحیح نمیشباشد",
- InValidRegisterData="اطلاعات ارسال شده برای ثبت نام صحیح نمیشباشد"
+ InValidRegisterData="اطلاعات ارسال شده برای ثبت نام صحیح نمیشباشد",
+ SomeThingWrong="خطایی پیش امده"
 }
 
 export enum AuthMessage{
@@ -24,7 +25,9 @@ export enum NotFoundMessage{
 }
 
 export enum ValidationMessage{
-InvalidImageFormat="قرمت تصویر انتخاب شده باید از نوع  jpg ,png ,jpeg باشد"
+InvalidImageFormat="قرمت تصویر انتخاب شده باید از نوع  jpg ,png ,jpeg باشد",
+InvalidEmailFormat="ایمیل وارد شده صحیح نمیاشد",
+InvalidPhoneFormat="شماره موبایل وارد شده صحیح نمیاشد",
 }
 
 export enum publicMessage{
@@ -37,5 +40,6 @@ export enum publicMessage{
 }
 
 export enum ConflictMessage{
-    categoryTitle="عنوان دشته بندی قبلا ثبت شده"
+    categoryTitle="عنوان دشته بندی قبلا ثبت شده",
+    email="ابمبل توسط شخص دیگری استفاده شده",
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Scope } from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
@@ -10,8 +10,10 @@ import { ProfileEntity } from './entities/profile.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Gender } from 'src/common/enums/gender.enum';
 import { isDate } from 'class-validator';
-import { publicMessage } from 'src/common/enums/message.enum';
+import { ConflictMessage, publicMessage } from 'src/common/enums/message.enum';
 import { ProfileImage } from './types/files';
+import { AuthService } from 'src/modules/auth/auth/auth.service';
+import { TokenService } from 'src/modules/auth/auth/token.service';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -20,6 +22,8 @@ export class UserService {
     @Inject(REQUEST) private request: Request,
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
+    private authService:AuthService,
+    private tokenService:TokenService ,
   ) { }
 
   async changeProfile(files: ProfileImage, profileDto: profileDto) {
@@ -77,6 +81,28 @@ export class UserService {
       where: { id },
       relations: ['profile']
     });
+  }
+
+
+
+  async changeEmail(email:string){
+    const {id}=this.request.user
+    const user=await this.userRepository.findOneBy({email})
+    if( user&&user?.id!== id){
+      throw new ConflictException(ConflictMessage.email)
+    }else if( user&&user?.id!== id){
+      return {
+        message:publicMessage.Update
+      }
+    }
+    user.new_email=email
+    const otp=await this.authService.createAndSaveOtp(user.id)
+    const token=await this.tokenService.createEmailToken({email})
+    return {
+      code:otp.code,
+      token
+    }
+
   }
 }
   

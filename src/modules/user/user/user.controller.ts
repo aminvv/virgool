@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { profileDto } from './dto/profile.dto';
+import { ChangEmailDto, profileDto } from './dto/profile.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { multerDestination, multerFileName, multerStorage } from 'src/common/utils/multer.util';
+import { multerStorage } from 'src/common/utils/multer.util';
 import { AuthGuard } from 'src/modules/auth/auth/guard/auth.guard';
 import { ProfileImage } from './types/files';
 import { uploadedOptionalFiles } from 'src/common/decorators/upload-files.decorator';
+import { CookieKeys } from 'src/common/enums/cookie.enum';
+import { CookieOptionsToken } from 'src/common/utils/cookie.util';
+import { publicMessage } from 'src/common/enums/message.enum';
+import { Response } from 'express';
 
 @Controller('user')
 @ApiTags('user')
@@ -23,13 +26,13 @@ export class UserController {
   @ApiConsumes(swaggerConsumes.MultiPartData)
   @UseInterceptors(FileFieldsInterceptor(
     [
-    { name: "image_profile", maxCount: 1 },
-    { name: "bg_image", maxCount: 1 }
+      { name: "image_profile", maxCount: 1 },
+      { name: "bg_image", maxCount: 1 }
     ], {
-      storage:multerStorage("user-profile")
-    }))
+    storage: multerStorage("user-profile")
+  }))
   changeProfile(
- @uploadedOptionalFiles()files:ProfileImage,
+    @uploadedOptionalFiles() files: ProfileImage,
     @Body() profileDto: profileDto) {
     return this.userService.changeProfile(files, profileDto);
   }
@@ -37,12 +40,24 @@ export class UserController {
 
 
   @Get("/profile")
-  profile(){
+  profile() {
     return this.userService.profile()
+  }
+
+
+
+  @Patch('/change-email')
+  async changeEmail(@Body() ChangEmailDto: ChangEmailDto, @Res() res: Response) {
+    const { code, token, message } = await this.userService.changeEmail(ChangEmailDto.email)
+    if (message) return res.json({ message })
+    res.cookie(CookieKeys.EmailOTP, token, CookieOptionsToken())
+    res.json({
+      code,
+      message: publicMessage.SendOtp
+    })
   }
 
 }
 
 
 
- 

@@ -15,6 +15,7 @@ import { Request, Response } from 'express';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthResponse } from './enums/response';
 import { REQUEST } from '@nestjs/core';
+import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 
 @Injectable({scope:Scope.REQUEST})
 export class AuthService {
@@ -52,10 +53,7 @@ export class AuthService {
 
     async sendResponse(res:Response ,result:AuthResponse){
         const{token,code}=result
-        res.cookie(CookieKeys.OTP,token,{
-            httpOnly:true,
-            expires:new Date( Date.now() +(1000*60*2))
-        })
+        res.cookie(CookieKeys.OTP,token,CookieOptionsToken())
         res.json({
             token,
             code
@@ -71,6 +69,11 @@ export class AuthService {
                 if(otp.expiresIn < new Date())throw new UnauthorizedException(AuthMessage.TryAgain)
                     if(otp.code !== code)throw new UnauthorizedException(AuthMessage.TryAgain)
                         const  accessToken=this.tokenService.createAccessToken({userId})
+                        if(otp.method===AuthMethod.Email){
+                            await this.userRepository.update({id:userId},{verify_email:true})
+                        }else if(otp.method ===AuthMethod.phone){
+                            await this.userRepository.update({id:userId},{verify_phone:true})
+                        }
                         return {
                             message:publicMessage.loggedIn,
                             accessToken
@@ -107,6 +110,8 @@ export class AuthService {
         user.username = `Us-${user.id}`
         await this.userRepository.save(user)
         const otp = await this.createAndSaveOtp(user.id)
+        otp.method=method
+        await this .otpRepository.save(otp )
         const token=this.tokenService.createOtpToken({userId:user.id})
 
         return { 
