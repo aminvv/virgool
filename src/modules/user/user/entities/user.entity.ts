@@ -25,9 +25,13 @@ export class UserEntity extends BaseEntityCustom {
     verify_email:boolean
     
 
-    @Column({unique:true,default:false})
+    @Column({nullable:true,default:false})
     verify_phone:boolean
 
+
+    @Column({nullable:true})
+    new_phone:string
+    
     
     @Column({nullable:true})
     password:string

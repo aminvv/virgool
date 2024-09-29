@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { ChangEmailDto, profileDto } from './dto/profile.dto';
+import { ChangEmailDto, ChangPhoneDto, profileDto } from './dto/profile.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage } from 'src/common/utils/multer.util';
@@ -65,6 +65,28 @@ export class UserController {
   @Post('/change-email-otp')
   async verifyEmailOtp(@Body() otpDto: CheckOtpDto,) {
   return this.userService.verifyEmail(otpDto.code)
+  }
+
+
+
+  @Patch('/change-phone')
+  async changePhone(@Body() ChangPhoneDto: ChangPhoneDto, @Res() res: Response) {
+    const { code, token, message } = await this.userService.changePhone(ChangPhoneDto.Phone) 
+    if (message) return res.json({ message })
+    res.cookie(CookieKeys.PhoneOTP, token, CookieOptionsToken())
+    res.json({
+      code,
+      message: publicMessage.SendOtp
+    })
+  }
+
+
+
+
+
+  @Post('/change-phone-otp')
+  async verifyPhoneOtp(@Body() otpDto: CheckOtpDto,) {
+  return this.userService.verifyPhone(otpDto.code)
   }
 }
 

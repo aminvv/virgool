@@ -92,7 +92,9 @@ export class UserService {
   async changeEmail(email: string) {
     const { id } = this.request.user
     const user = await this.userRepository.findOneBy({ email })
-    if (user && user?.id !== id) {
+
+    
+    if (user && user?.id!== id) {
       throw new ConflictException(ConflictMessage.email)
     } else if (user && user?.id == id) {
       return {
@@ -100,6 +102,8 @@ export class UserService {
       }
     }
     await this.userRepository.update({id},{new_email :email})
+    console.log(email);
+    
     const otp = await this.authService.createAndSaveOtp(id, AuthMethod.Email)
     
     const token = await this.tokenService.createEmailToken({ email })
@@ -129,6 +133,53 @@ export class UserService {
       }
   }
 
+
+
+
+
+
+
+  async changePhone(phone: string) {
+    const { id } = this.request.user
+    const user = await this.userRepository.findOneBy({ phone })
+
+    
+    if (user && user?.id!== id) {
+      throw new ConflictException(ConflictMessage.phone)
+    } else if (user && user?.id == id) {
+      return {
+        message: publicMessage.Update
+      }
+    }
+    await this.userRepository.update({id},{new_phone :phone})
+    const otp = await this.authService.createAndSaveOtp(id, AuthMethod.phone)
+    
+    const token = await this.tokenService.createPhoneToken({ phone })
+    return {
+      code: otp.code,
+      token
+    }
+
+  }
+
+  async  verifyPhone(code: string) { 
+    const { id: userId, new_phone } = this.request.user
+    const token = this.request.cookies?.[CookieKeys.PhoneOTP]
+    if (!token) throw new BadRequestException(AuthMessage.ExpiredCode)
+    const { phone } = this.tokenService.VerifyPhoneToken(token)
+    if (phone !== new_phone) throw new BadRequestException(BadRequestMessage.SomeThingWrong)
+    const otp = await this.checkOtp(code, userId)
+    if(otp.method !==AuthMethod.phone)throw new BadRequestException(BadRequestMessage.SomeThingWrong)
+      await this.userRepository.update({id:userId},{
+        phone,
+        new_phone:null,
+        verify_email:true
+      })
+      return {
+        message :publicMessage.Update,
+        
+      }
+  }
 
 
 

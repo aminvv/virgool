@@ -42,4 +42,5 @@ export enum publicMessage{
 export enum ConflictMessage{
     categoryTitle="عنوان دشته بندی قبلا ثبت شده",
     email="ابمبل توسط شخص دیگری استفاده شده",
+    phone="شماره توسط شخص دیگری استفاده شده",
 }
