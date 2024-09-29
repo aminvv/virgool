@@ -12,6 +12,7 @@ import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 import { publicMessage } from 'src/common/enums/message.enum';
 import { Response } from 'express';
+import { CheckOtpDto } from 'src/modules/auth/auth/dto/auth.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -57,6 +58,14 @@ export class UserController {
     })
   }
 
+
+
+
+
+  @Post('/change-email-otp')
+  async verifyEmailOtp(@Body() otpDto: CheckOtpDto,) {
+  return this.userService.verifyEmail(otpDto.code)
+  }
 }
 
 

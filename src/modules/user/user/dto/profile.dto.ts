@@ -35,7 +35,7 @@ import { ValidationMessage } from "src/common/enums/message.enum"
 
  export class ChangEmailDto{
   @ApiProperty()
-  @IsEmail(null,{message:ValidationMessage.InvalidEmailFormat})
+  @IsEmail( )
   email:string
  }
 

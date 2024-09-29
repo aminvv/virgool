@@ -4,7 +4,7 @@
 export enum BadRequestMessage{
  InValidLoginData="اطلاعات ارسال شده برای ورود صحیح نمیشباشد",
  InValidRegisterData="اطلاعات ارسال شده برای ثبت نام صحیح نمیشباشد",
- SomeThingWrong="خطایی پیش امده"
+ SomeThingWrong="خطایی پیش امده",
 }
 
 export enum AuthMessage{
