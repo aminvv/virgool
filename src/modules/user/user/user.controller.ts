@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { ChangEmailDto, ChangPhoneDto, profileDto } from './dto/profile.dto';
+import { ChangEmailDto, ChangPhoneDto, ChangUsernameDto, profileDto } from './dto/profile.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage } from 'src/common/utils/multer.util';
@@ -48,6 +48,7 @@ export class UserController {
 
 
   @Patch('/change-email')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
   async changeEmail(@Body() ChangEmailDto: ChangEmailDto, @Res() res: Response) {
     const { code, token, message } = await this.userService.changeEmail(ChangEmailDto.email)
     if (message) return res.json({ message })
@@ -63,6 +64,7 @@ export class UserController {
 
 
   @Post('/change-email-otp')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
   async verifyEmailOtp(@Body() otpDto: CheckOtpDto,) {
   return this.userService.verifyEmail(otpDto.code)
   }
@@ -70,6 +72,7 @@ export class UserController {
 
 
   @Patch('/change-phone')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
   async changePhone(@Body() ChangPhoneDto: ChangPhoneDto, @Res() res: Response) {
     const { code, token, message } = await this.userService.changePhone(ChangPhoneDto.Phone) 
     if (message) return res.json({ message })
@@ -85,8 +88,16 @@ export class UserController {
 
 
   @Post('/change-phone-otp')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
   async verifyPhoneOtp(@Body() otpDto: CheckOtpDto,) {
   return this.userService.verifyPhone(otpDto.code)
+  }
+
+
+  @Patch('/change-username')
+  @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
+  async changeUsername(@Body() changeUsername: ChangUsernameDto) {
+  return this.userService.changeUsername(changeUsername.username)
   }
 }
 

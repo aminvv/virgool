@@ -181,9 +181,33 @@ export class UserService {
       }
   }
 
+  
+  
+  
+  
+  async changeUsername(username: string) {
+    const { id } = this.request.user
+    const user = await this.userRepository.findOneBy({ username })
+
+    
+    if (user && user?.id!== id) {
+      throw new ConflictException(ConflictMessage.username)
+    } else if (user && user?.id == id) {
+      return {
+        message: publicMessage.Update
+      }
+    }
+    await this.userRepository.update({id},{username})
+    return {
+      message: publicMessage.Update
+
+  }
+}
 
 
-  async checkOtp(code: string, userId: number) {
+
+  
+  async checkOtp(code: string,userId:number ) {
     const otp = await this.otpRepository.findOneBy({ userId })
     if (!otp) throw new BadRequestException(AuthMessage.loginAgain)
     if (otp.expiresIn < new Date()) throw new BadRequestException(AuthMessage.TryAgain)

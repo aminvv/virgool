@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
-import { IsEmail,  Length ,IsMobilePhone} from "class-validator"
+import { IsEmail,  Length ,IsMobilePhone, IsString} from "class-validator"
 import { Gender } from "src/common/enums/gender.enum"
 import { ValidationMessage } from "src/common/enums/message.enum"
 
@@ -47,3 +47,11 @@ import { ValidationMessage } from "src/common/enums/message.enum"
    Phone:string
   }
  
+
+
+  export class ChangUsernameDto{
+   @ApiProperty()
+   @IsString()
+   @Length(3,100)
+   username:string
+  }
