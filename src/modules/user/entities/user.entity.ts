@@ -1,8 +1,10 @@
 import { BaseEntityCustom } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { Entity ,Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn} from "typeorm";
+import { Entity ,Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany} from "typeorm";
 import { OtpEntity } from "./otp.entity";
 import { ProfileEntity } from "./profile.entity";
+import { BlogEntity } from "src/modules/blog/entities/blog.entity";
+import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntityCustom {
@@ -59,4 +61,13 @@ export class UserEntity extends BaseEntityCustom {
     @JoinColumn({name:"profileId"})
     profile:ProfileEntity
 
+
+    @OneToMany(()=>BlogEntity,blog=>blog.author)
+    blogs:BlogEntity
+
+
+    @OneToMany(()=>BlogLikesEntity,like=>like.user)
+    blogs_likes:BlogLikesEntity
+
 }
+ 

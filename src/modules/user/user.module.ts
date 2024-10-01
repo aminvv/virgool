@@ -5,7 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { ProfileEntity } from './entities/profile.entity';
 import { OtpEntity } from './entities/otp.entity';
-import { AuthModule } from 'src/modules/auth/auth/auth.module';
+import { AuthModule } from 'src/modules/auth/auth.module';
 
 @Module({
   imports:[AuthModule, TypeOrmModule.forFeature([UserEntity,ProfileEntity,OtpEntity])],

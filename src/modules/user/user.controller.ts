@@ -5,14 +5,14 @@ import { ChangEmailDto, ChangPhoneDto, ChangUsernameDto, profileDto } from './dt
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage } from 'src/common/utils/multer.util';
-import { AuthGuard } from 'src/modules/auth/auth/guard/auth.guard';
+import { AuthGuard } from 'src/modules/auth/guard/auth.guard';
 import { ProfileImage } from './types/files';
 import { uploadedOptionalFiles } from 'src/common/decorators/upload-files.decorator';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 import { publicMessage } from 'src/common/enums/message.enum';
 import { Response } from 'express';
-import { CheckOtpDto } from 'src/modules/auth/auth/dto/auth.dto';
+import { CheckOtpDto } from 'src/modules/auth/dto/auth.dto';
 
 @Controller('user')
 @ApiTags('user')

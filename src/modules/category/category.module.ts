@@ -3,8 +3,8 @@ import { CategoryService } from './category.service';
 import { CategoryController } from './category.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryEntity } from './entities/category.entity';
-import { AuthModule } from 'src/modules/auth/auth/auth.module';
-import { UserModule } from 'src/modules/user/user/user.module';
+import { AuthModule } from 'src/modules/auth/auth.module';
+import { UserModule } from 'src/modules/user/user.module';
 
 @Module({
   imports:[

@@ -12,11 +12,11 @@ import { Gender } from 'src/common/enums/gender.enum';
 import { isDate } from 'class-validator';
 import { AuthMessage, BadRequestMessage, ConflictMessage, publicMessage } from 'src/common/enums/message.enum';
 import { ProfileImage } from './types/files';
-import { AuthService } from 'src/modules/auth/auth/auth.service';
-import { TokenService } from 'src/modules/auth/auth/token.service';
+import { AuthService } from 'src/modules/auth/auth.service';
+import { TokenService } from 'src/modules/auth/token.service';
 import { OtpEntity } from './entities/otp.entity';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthMethod } from 'src/modules/auth/auth/enums/method.enums';
+import { AuthMethod } from 'src/modules/auth/enums/method.enums';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {

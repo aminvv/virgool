@@ -4,9 +4,9 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from './token.service';
-import { UserEntity } from 'src/modules/user/user/entities/user.entity';
-import { ProfileEntity } from 'src/modules/user/user/entities/profile.entity';
-import { OtpEntity } from 'src/modules/user/user/entities/otp.entity';
+import { UserEntity } from 'src/modules/user/entities/user.entity';
+import { ProfileEntity } from 'src/modules/user/entities/profile.entity';
+import { OtpEntity } from 'src/modules/user/entities/otp.entity';
 
 @Module({
   imports:[TypeOrmModule.forFeature([UserEntity,ProfileEntity,OtpEntity])],

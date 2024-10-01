@@ -1,8 +1,21 @@
 import { BaseEntityCustom } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { Entity } from "typeorm";
+import { UserEntity } from "src/modules/user/entities/user.entity";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { BlogEntity } from "./blog.entity";
 
-@Entity(EntityName.BlogCategory)
- export class BlogCategoryEntity extends BaseEntityCustom{
+@Entity(EntityName.BlogLikes)
+ export class BlogLikesEntity extends BaseEntityCustom{
+    @Column()
+    blogId:number
+    @Column()
+    userId:number
+
+
+
+    @ManyToOne(()=>UserEntity,user=>user.blogs_likes)
+    user:UserEntity[]
+    @ManyToOne(()=>BlogEntity,blog=>blog.likes)
+    blog:BlogEntity[]
 
  }
