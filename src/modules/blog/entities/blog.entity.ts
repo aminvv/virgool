@@ -4,6 +4,8 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, UpdateDateColum
 import { BlogStatus } from "../enum/status.enum";
 import { UserEntity } from "src/modules/user/entities/user.entity";
 import { BlogLikesEntity } from "./like.entity";
+import { BookmarksEntity } from "./bookmark.entity";
+import { CommentsEntity } from "./comment.entity";
 
 @Entity(EntityName.Blog)
  export class BlogEntity extends BaseEntityCustom{
@@ -19,6 +21,10 @@ import { BlogLikesEntity } from "./like.entity";
     authorId:string
     @Column({default:BlogStatus.Draft})
     status:string
+    @Column({unique:true})
+    slug:string
+    @Column()
+    time_for_study:string
 
 
 
@@ -35,4 +41,10 @@ import { BlogLikesEntity } from "./like.entity";
     @OneToMany(()=>BlogLikesEntity,like=>like.blog,{onDelete:"CASCADE"})
     likes:BlogLikesEntity[]
 
+    @OneToMany(()=>BookmarksEntity,bookmark=>bookmark.blog,{onDelete:"CASCADE"})
+    bookmarks:BookmarksEntity[]
+
+
+    @OneToMany(()=>CommentsEntity,comment=>comment.blog,{onDelete:"CASCADE"})
+    comment:CommentsEntity
  }
