@@ -6,6 +6,7 @@ import { UserEntity } from "src/modules/user/entities/user.entity";
 import { BlogLikesEntity } from "./like.entity";
 import { BookmarksEntity } from "./bookmark.entity";
 import { CommentsEntity } from "./comment.entity";
+import { BlogCategoryEntity } from "./blog.category.entity";
 
 @Entity(EntityName.Blog)
  export class BlogEntity extends BaseEntityCustom{
@@ -46,5 +47,8 @@ import { CommentsEntity } from "./comment.entity";
 
 
     @OneToMany(()=>CommentsEntity,comment=>comment.blog,{onDelete:"CASCADE"})
-    comment:CommentsEntity
+    comment:CommentsEntity[]
+
+    @OneToMany(()=>BlogCategoryEntity,category=>category.blog ,{onDelete:"CASCADE"})
+    category:BlogCategoryEntity[]
  }
