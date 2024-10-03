@@ -28,3 +28,9 @@ import { IsNotEmpty, IsNumber, IsNumberString, Length } from "class-validator";
     @Length(10,100)
     content:string
  }
+
+
+
+ export class filterBlogDto{
+   search:string
+ }

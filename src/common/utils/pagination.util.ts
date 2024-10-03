@@ -18,7 +18,6 @@ export function paginationSolver(paginationDto:paginationDto){
 
 
 export function paginationGenerator(count:number=0,page:number=0,limit:number=0){
-    console.log("count>>>>>>>>>>>>>>>>",count);
     return{
         totalCount:count,
         page:+page,
