@@ -50,5 +50,5 @@ import { BlogCategoryEntity } from "./blog.category.entity";
     comment:CommentsEntity[]
 
     @OneToMany(()=>BlogCategoryEntity,category=>category.blog ,{onDelete:"CASCADE"})
-    category:BlogCategoryEntity[]
+    categories:BlogCategoryEntity[]
  }

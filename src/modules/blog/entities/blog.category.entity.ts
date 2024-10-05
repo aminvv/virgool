@@ -12,7 +12,7 @@ import { CategoryEntity } from "src/modules/category/entities/category.entity";
      categoryId:number
 
 
-     @ManyToOne(()=>BlogEntity,(blog)=>blog.category)
+     @ManyToOne(()=>BlogEntity,(blog)=>blog.categories,{nullable:true})
      blog:BlogEntity
 
      @ManyToOne(()=>CategoryEntity,category=>category.blog_category,{onDelete:"CASCADE"})

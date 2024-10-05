@@ -41,7 +41,7 @@ export class CategoryService {
     title = title?.trim()?.toLowerCase()
     const category = await this.categoryRepository.findOneBy({ title })
     if (category) {
-      throw new ConflictException(ConflictMessage.categoryTitle)
+      throw new ConflictException(ConflictMessage.categoryTitle) 
     }
     return title
   }

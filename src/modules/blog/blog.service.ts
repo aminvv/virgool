@@ -1,8 +1,8 @@
 import { BadRequestException, Get, Inject, Injectable, Query, Scope } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
-import { Repository } from 'typeorm';
-import { CreateBlogDto } from './dto/blog.dto';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { CreateBlogDto, filterBlogDto } from './dto/blog.dto';
 import { createSlug, RandomId } from 'src/common/utils/functions.util';
 import { REQUEST } from '@nestjs/core';
 import { BlogStatus } from './enum/status.enum';
@@ -14,6 +14,7 @@ import { pagination } from 'src/common/decorators/pagination.decorator';
 import { CategoryService } from '../category/category.service';
 import { isArray } from 'class-validator';
 import { BlogCategoryEntity } from './entities/blog.category.entity';
+import { title } from 'process';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -51,7 +52,7 @@ export class BlogService {
         })
         blog= await this.blogRepository.save(blog)
         for (const categoryTitle of categories) {
-            let category=await this.categoryService.findOneByTitle(title)
+            let category=await this.categoryService.findOneByTitle(categoryTitle)
             if(!category){
                category = await this.categoryService.insertByTitle(categoryTitle)
             }
@@ -95,11 +96,33 @@ export class BlogService {
         })
     }
 
-    async blogList(paginationDto: paginationDto) {
+    async blogList(paginationDto: paginationDto ,filterBlogDto:filterBlogDto) {
         const { limit, page, skip } = paginationSolver(paginationDto)
-
+        const{category}=filterBlogDto
+        let where:FindOptionsWhere<BlogEntity>={}
+        if (category) {
+            where['categories']={
+                category:{
+                    title:category
+                }
+            }
+        }
         const [blogs, count] = await this.blogRepository.findAndCount({
-            where: {},  
+            relations:{
+                categories:{
+                    category:true
+                }
+            },
+            where,
+            select:{
+                categories:{
+                    id:true,
+                    category:{
+                        id:true,
+                        title:true
+                    }
+                }
+            },
             order: {
                 id: "DESC"
             },

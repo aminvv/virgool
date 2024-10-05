@@ -29,7 +29,7 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
     content:string
 
 
-    @ApiProperty({type:String,isArray:true})
+    @ApiProperty({type:String,isArray:true,})
     categories:string[] |string
 
 
@@ -38,5 +38,5 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
 
 
  export class filterBlogDto{
-   search:string
+   category:string
  }
