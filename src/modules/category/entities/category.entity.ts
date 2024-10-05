@@ -8,7 +8,7 @@ export class CategoryEntity extends BaseEntityCustom {
      @Column()
      title:string
 
-     @Column()
+     @Column({nullable:true})
      priority:number
 
      @OneToMany(()=>BlogCategoryEntity,blog=>blog.category)

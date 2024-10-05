@@ -15,16 +15,29 @@ export class CategoryService {
 
   constructor(@InjectRepository(CategoryEntity) private categoryRepository: Repository<CategoryEntity>) { }
   async create(createCategoryDto: CreateCategoryDto) {
-    let { priority, title } = createCategoryDto
-    title = await this.checkExistAndResolveTile(title)
-    const category = this.categoryRepository.create({ priority, title })
+    let {  title,priority } = createCategoryDto
+    if (priority === undefined) {
+      priority = 0; // Default priority value, change this as per your logic
+  }
+    title = await this.checkExistAndResolveTitle(title)
+    const category = this.categoryRepository.create({title,priority})
     await this.categoryRepository.save(category)
     return {
       message: publicMessage.created
     }
   }
 
-  async checkExistAndResolveTile(title: string) {
+
+
+  async insertByTitle(title: string) {
+    const category =this.categoryRepository.create({ title })
+    return await this.categoryRepository.save(category)
+
+  }
+
+
+
+  async checkExistAndResolveTitle(title: string) {
     title = title?.trim()?.toLowerCase()
     const category = await this.categoryRepository.findOneBy({ title })
     if (category) {
@@ -36,42 +49,49 @@ export class CategoryService {
   async findAll(paginationDto: paginationDto) {
     const { limit, page, skip } = paginationSolver(paginationDto)
     const [categories, count] = await this.categoryRepository.findAndCount({
-      where:{},
+      where: {},
       skip,
       take: limit,
     });
-    console.log("skip---------------",skip);
-    console.log("categories------------------",categories);
-    
+    console.log("skip---------------", skip);
+    console.log("categories------------------", categories);
+
     return {
-      pagination:paginationGenerator(count,page,limit),
+      pagination: paginationGenerator(count, page, limit),
       categories
-}
+    }
   }
 
-async findOne(id: number) {
-  const category=await this.categoryRepository.findBy({id})
-  if(!category)throw new NotFoundException(NotFoundMessage.NotFoundCategory)
+  async findOne(id: number) {
+    const category = await this.categoryRepository.findBy({ id })
+    if (!category) throw new NotFoundException(NotFoundMessage.NotFoundCategory)
     return category
-}
-
-async update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  const category=await this.findOne(id) 
-  if(!category) {throw new NotFoundException(NotFoundMessage.NotFoundCategory)}
-    const{priority,title}=updateCategoryDto
-  await this.categoryRepository.update({id},{priority,title})
-  return {
-    message:publicMessage.Update
   }
 
-}
 
-async remove(id: number) {
-  const category= this.findOne(id) 
-  if(!category) {throw new NotFoundException(NotFoundMessage.NotFoundCategory)}
+
+  async findOneByTitle(title: string) {
+    return await this.categoryRepository.findOneBy({ title })
+
+  }
+
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    const category = await this.findOne(id)
+    if (!category) { throw new NotFoundException(NotFoundMessage.NotFoundCategory) }
+    const { priority, title } = updateCategoryDto
+    await this.categoryRepository.update({ id }, { priority, title })
+    return {
+      message: publicMessage.Update
+    }
+
+  }
+
+  async remove(id: number) {
+    const category = this.findOne(id)
+    if (!category) { throw new NotFoundException(NotFoundMessage.NotFoundCategory) }
     await this.categoryRepository.delete(id)
-  return {
-    message:publicMessage.Delete
+    return {
+      message: publicMessage.Delete
+    }
   }
-}
 }

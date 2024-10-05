@@ -5,5 +5,5 @@ export class CreateCategoryDto {
     title:string
 
     @ApiPropertyOptional()
-    priority:number
+    priority?:number
 }
