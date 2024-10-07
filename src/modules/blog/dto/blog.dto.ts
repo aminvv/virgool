@@ -39,4 +39,5 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
 
  export class filterBlogDto{
    category:string
+   search:string
  }

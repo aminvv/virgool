@@ -5,7 +5,7 @@ import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BlogEntity } from "./blog.entity";
 
 @Entity(EntityName.BlogLikes)
- export class BlogLikesEntity extends BaseEntityCustom{
+ export class  BlogLikesEntity extends BaseEntityCustom{
     @Column()
     blogId:number
     @Column()
@@ -14,8 +14,8 @@ import { BlogEntity } from "./blog.entity";
 
 
     @ManyToOne(()=>UserEntity,user=>user.blogs_likes)
-    user:UserEntity[]
+    user:UserEntity
     @ManyToOne(()=>BlogEntity,blog=>blog.likes)
-    blog:BlogEntity[]
+    blog:BlogEntity
 
  }

@@ -12,5 +12,5 @@ export class CategoryEntity extends BaseEntityCustom {
      priority:number
 
      @OneToMany(()=>BlogCategoryEntity,blog=>blog.category)
-     blog_category:BlogCategoryEntity
+     blog_category:BlogCategoryEntity[]
 }

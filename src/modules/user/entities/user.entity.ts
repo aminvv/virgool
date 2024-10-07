@@ -65,7 +65,7 @@ export class UserEntity extends BaseEntityCustom {
 
 
     @OneToMany(()=>BlogEntity,blog=>blog.author)
-    blogs:BlogEntity
+    blogs:BlogEntity[]
 
 
     @OneToMany(()=>BlogLikesEntity,like=>like.user)

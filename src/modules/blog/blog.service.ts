@@ -1,4 +1,4 @@
-import { BadRequestException, Get, Inject, Injectable, Query, Scope } from '@nestjs/common';
+import { BadRequestException, Get, Inject, Injectable, Query, Scope, Search } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
@@ -15,6 +15,8 @@ import { CategoryService } from '../category/category.service';
 import { isArray } from 'class-validator';
 import { BlogCategoryEntity } from './entities/blog.category.entity';
 import { title } from 'process';
+import { EntityName } from 'src/common/enums/entity.enum';
+import { take } from 'rxjs';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -23,25 +25,25 @@ export class BlogService {
         @Inject(REQUEST) private request: Request,
         @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
         @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>
-        ,private categoryService:CategoryService
-    ){ }
+        , private categoryService: CategoryService
+    ) { }
     async create(blogDto: CreateBlogDto) {
-        const user=this.request.user
-        let { title, slug, content, description, image, time_for_study,categories } = blogDto
-        if(!isArray (categories) && typeof categories ==="string"){
-            categories=categories.split(",")
-        }else if(!isArray (categories)){
+        const user = this.request.user
+        let { title, slug, content, description, image, time_for_study, categories } = blogDto
+        if (!isArray(categories) && typeof categories === "string") {
+            categories = categories.split(",")
+        } else if (!isArray(categories)) {
             throw new BadRequestException(BadRequestMessage.InvalidCategory)
         }
-        
+
         let slugData = slug ?? title
         slug = createSlug(slugData)
-        const isExist= await this.checkBlogBySlug(slug)
-        if(isExist){
-            slug+= `-${RandomId()}`
+        const isExist = await this.checkBlogBySlug(slug)
+        if (isExist) {
+            slug += `-${RandomId()}`
         }
         let blog = this.blogRepository.create({
-            authorId:user.id,
+            authorId: user.id,
             time_for_study,
             status: BlogStatus.Draft,
             description,
@@ -50,15 +52,15 @@ export class BlogService {
             slug,
             image,
         })
-        blog= await this.blogRepository.save(blog)
+        blog = await this.blogRepository.save(blog)
         for (const categoryTitle of categories) {
-            let category=await this.categoryService.findOneByTitle(categoryTitle)
-            if(!category){
-               category = await this.categoryService.insertByTitle(categoryTitle)
+            let category = await this.categoryService.findOneByTitle(categoryTitle)
+            if (!category) {
+                category = await this.categoryService.insertByTitle(categoryTitle)
             }
             await this.blogCategoryRepository.insert({
-                blogId:blog.id, 
-                categoryId:category.id
+                blogId: blog.id,
+                categoryId: category.id
             })
         }
         return {
@@ -68,72 +70,112 @@ export class BlogService {
 
 
 
-
-
-
-
-
-
-
-    
-
-    async checkBlogBySlug(slug:string){
-        const blog=await this.blogRepository.findOneBy({slug})
+    async checkBlogBySlug(slug: string) {
+        const blog = await this.blogRepository.findOneBy({ slug })
         return !!blog
     }
 
 
 
-    async myBlog(){
-        const {id}=this.request.user
-         return await this.blogRepository.find ({
-            where:{
-                authorId:id
+    async myBlog() {
+        const { id } = this.request.user
+        return await this.blogRepository.find({
+            where: {
+                authorId: id
             },
-            order:{
-                id:"DESC"
+            order: {
+                id: "DESC"
             }
         })
     }
 
-    async blogList(paginationDto: paginationDto ,filterBlogDto:filterBlogDto) {
+    async blogList(paginationDto: paginationDto, filterBlogDto: filterBlogDto) {
         const { limit, page, skip } = paginationSolver(paginationDto)
-        const{category}=filterBlogDto
-        let where:FindOptionsWhere<BlogEntity>={}
+        let { category, search } = filterBlogDto
+        category=category.toLowerCase()
+        let where=''
         if (category) {
-            where['categories']={
-                category:{
-                    title:category
-                }
-            }
-        }
-        const [blogs, count] = await this.blogRepository.findAndCount({
-            relations:{
-                categories:{
-                    category:true
-                }
-            },
-            where,
-            select:{
-                categories:{
-                    id:true,
-                    category:{
-                        id:true,
-                        title:true
-                    }
-                }
-            },
-            order: {
-                id: "DESC"
-            },
-            skip,
-            take: limit,
-        });
-        return {
-            pagination:paginationGenerator(count,page ,limit),
-            blogs
+            if(where.length>0)where+= ' AND '            
+            where+='category.title=:category'
+     
         }
 
-}
+        if (Search) {
+            if(where.length>0)where+= ' AND '    
+            search=`%${search}%`
+            where+= 'CONCAT(blog.title,blog.description,blog.content) ILIKE :search'        
+        }
+        const [blog, count] = await this.blogRepository.createQueryBuilder( EntityName.Blog )
+            .leftJoin("blog.categories","categories")
+            .leftJoin("categories.category","category")
+            .addSelect(['categories.id','category.title'])
+            .where(where,{category,search})
+            .orderBy("blog.id",'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount() 
+
+//---------------------ASK  CODI------------------------------------------- 
+
+// const whereConditions = [];
+// const parameters: any = {};
+
+// // Validate and sanitize category
+// if (category) {
+//     const sanitizedCategory = category.toLowerCase();
+//     whereConditions.push('category.title = :category');
+//     parameters.category = sanitizedCategory;
+// }
+
+// // Validate and sanitize search
+// if (search) {
+//     const sanitizedSearch = `%${search}%`;
+//     whereConditions.push('CONCAT(blog.title, blog.description, blog.content) ILIKE :search');
+//     parameters.search = sanitizedSearch;
+// }
+
+// const whereClause = whereConditions.length > 0 ? whereConditions.join(' AND ') : '';
+// const [blog, count] = await this.blogRepository.createQueryBuilder( EntityName.Blog )
+//     .leftJoin("blog.categories","categories")
+//     .leftJoin("categories.category","category")
+//     .addSelect(['categories.id','category.title'])
+//     .where(whereClause,parameters)
+
+//-------------------------------------------------------------------------
+
+
+
+
+
+        // const [blogs, count] = await this.blogRepository.findAndCount({
+        //     relations:{
+        //         categories:{
+        //             category:true
+        //         }
+        //     },
+        //     where,
+        //     select:{
+        //         categories:{
+        //             id:true,
+        //             category:{
+        //                 id:true,
+        //                 title:true
+        //             }
+        //         }
+        //     },
+        //     order: {
+        //         id: "DESC"
+        //     },
+        //     skip,
+        //     take: limit,
+        // });
+
+
+        return {
+            pagination: paginationGenerator(count, page, limit),
+            blog
+        }
+
+    }
 
 }

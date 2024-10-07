@@ -6,14 +6,14 @@ import { BlogEntity } from "./blog.entity";
 import { join } from "path";
 
 @Entity(EntityName.BlogComments)
- export class CommentsEntity extends BaseEntityCustom{
+ export class  CommentsEntity extends BaseEntityCustom{
 
     @Column()
     userId:number
     @Column()
     blogId:number
     @Column()
-    text:number
+    text:string
     @Column()
     parentId:number
     @Column({default:false})
@@ -32,6 +32,6 @@ import { join } from "path";
     @ManyToOne(()=>UserEntity,user=>user.blog_comments,{onDelete:"CASCADE"})
     user:UserEntity
 
-    @ManyToOne(()=>BlogEntity,blog=>blog.comment,{onDelete:"CASCADE"})
+    @ManyToOne(()=>BlogEntity,blog=>blog.comments,{onDelete:"CASCADE"})
     blog:BlogEntity
  }

@@ -19,7 +19,7 @@ import { BlogCategoryEntity } from "./blog.category.entity";
     @Column({nullable:true})
     image:string
     @Column()
-    authorId:string
+    authorId:number
     @Column({default:BlogStatus.Draft})
     status:string
     @Column({unique:true})
@@ -37,7 +37,7 @@ import { BlogCategoryEntity } from "./blog.category.entity";
 
 
     @ManyToOne(()=>UserEntity,user=>user.blogs,{onDelete:"CASCADE"})
-    author:UserEntity[]
+    author:UserEntity
 
     @OneToMany(()=>BlogLikesEntity,like=>like.blog,{onDelete:"CASCADE"})
     likes:BlogLikesEntity[]
@@ -47,7 +47,7 @@ import { BlogCategoryEntity } from "./blog.category.entity";
 
 
     @OneToMany(()=>CommentsEntity,comment=>comment.blog,{onDelete:"CASCADE"})
-    comment:CommentsEntity[]
+    comments:CommentsEntity[]
 
     @OneToMany(()=>BlogCategoryEntity,category=>category.blog ,{onDelete:"CASCADE"})
     categories:BlogCategoryEntity[]
