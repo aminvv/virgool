@@ -5,7 +5,7 @@ import { Column, Entity, ManyToOne } from "typeorm";
 import { BlogEntity } from "./blog.entity";
 
 @Entity(EntityName.BlogBookmarks)
- export class BookmarksEntity extends BaseEntityCustom{
+ export class  BookmarksEntity extends BaseEntityCustom{
     @Column()
     blogId:number
     @Column()
@@ -13,9 +13,9 @@ import { BlogEntity } from "./blog.entity";
 
 
 
-    @ManyToOne(()=>UserEntity,user=>user.blogs_bookmarks)
+    @ManyToOne(()=>UserEntity,user=>user.blogs_bookmarks,{onDelete:"CASCADE"})
     user:UserEntity 
-    @ManyToOne(()=>BlogEntity,blog=>blog.bookmarks)
+    @ManyToOne(()=>BlogEntity,blog=>blog.bookmarks,{onDelete:"CASCADE"})
     blog:BlogEntity 
 
  }

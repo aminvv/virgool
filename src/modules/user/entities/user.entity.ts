@@ -69,15 +69,15 @@ export class UserEntity extends BaseEntityCustom {
 
 
     @OneToMany(()=>BlogLikesEntity,like=>like.user)
-    blogs_likes:BlogLikesEntity
+    blogs_likes:BlogLikesEntity[]
 
 
     @OneToMany(()=>BookmarksEntity,bookmark=>bookmark.user)
-    blogs_bookmarks:BookmarksEntity
+    blogs_bookmarks:BookmarksEntity[]
 
     
     @OneToMany(()=>CommentsEntity,comment=>comment.user)
-    blog_comments:CommentsEntity
+    blog_comments:CommentsEntity[]
 
 }
  

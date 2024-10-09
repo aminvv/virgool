@@ -23,4 +23,4 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
         type: 'postgres',
     }
 }
- 
+   

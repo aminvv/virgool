@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { CreateBlogDto, filterBlogDto } from './dto/blog.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
@@ -35,6 +35,11 @@ export class BlogController {
   @FilterBlog()
   find(@Query() paginationDto:paginationDto , @Query() filterDto:filterBlogDto){
     return this.blogService.blogList(paginationDto,filterDto)
+  }
+
+  @Delete('/my:id')
+  delete(@Param("id",ParseIntPipe) id:number){
+    return this.blogService.delete(id)
   }
   
 }

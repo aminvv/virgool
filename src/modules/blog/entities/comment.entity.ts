@@ -35,3 +35,6 @@ import { join } from "path";
     @ManyToOne(()=>BlogEntity,blog=>blog.comments,{onDelete:"CASCADE"})
     blog:BlogEntity
  }
+
+
+ 

@@ -9,46 +9,46 @@ import { CommentsEntity } from "./comment.entity";
 import { BlogCategoryEntity } from "./blog.category.entity";
 
 @Entity(EntityName.Blog)
- export class BlogEntity extends BaseEntityCustom{
-    @Column()
-    title:string
-    @Column()
-    description:string
-    @Column()
-    content:string
-    @Column({nullable:true})
-    image:string
-    @Column()
-    authorId:number
-    @Column({default:BlogStatus.Draft})
-    status:string
-    @Column({unique:true})
-    slug:string
-    @Column()
-    time_for_study:string
+export class BlogEntity extends BaseEntityCustom {
+   @Column()
+   title: string
+   @Column()
+   description: string
+   @Column()
+   content: string
+   @Column({ nullable: true })
+   image: string
+   @Column()
+   authorId: number
+   @Column({ default: BlogStatus.Draft })
+   status: string
+   @Column({ unique: true })
+   slug: string
+   @Column()
+   time_for_study: string
 
 
 
-    @CreateDateColumn()
-    create_at:Date
-    @UpdateDateColumn()
-    update_at:Date
+   @CreateDateColumn()
+   create_at: Date
+   @UpdateDateColumn()
+   update_at: Date
 
 
 
-    @ManyToOne(()=>UserEntity,user=>user.blogs,{onDelete:"CASCADE"})
-    author:UserEntity
+   @ManyToOne(() => UserEntity, user => user.blogs, { onDelete: "CASCADE" })
+   author: UserEntity
 
-    @OneToMany(()=>BlogLikesEntity,like=>like.blog,{onDelete:"CASCADE"})
-    likes:BlogLikesEntity[]
+   @OneToMany(() => BlogLikesEntity, like => like.blog)
+   likes: BlogLikesEntity[]
 
-    @OneToMany(()=>BookmarksEntity,bookmark=>bookmark.blog,{onDelete:"CASCADE"})
-    bookmarks:BookmarksEntity[]
+   @OneToMany(() => BookmarksEntity, bookmark => bookmark.blog,)
+   bookmarks: BookmarksEntity[]
 
 
-    @OneToMany(()=>CommentsEntity,comment=>comment.blog,{onDelete:"CASCADE"})
-    comments:CommentsEntity[]
+   @OneToMany(() => CommentsEntity, comment => comment.blog)
+   comments: CommentsEntity[]
 
-    @OneToMany(()=>BlogCategoryEntity,category=>category.blog ,{onDelete:"CASCADE"})
-    categories:BlogCategoryEntity[]
- }
+   @OneToMany(() => BlogCategoryEntity, category => category.blog)
+   categories: BlogCategoryEntity[]
+}

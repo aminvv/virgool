@@ -1,6 +1,6 @@
 import { BaseEntityCustom } from "src/common/abstracts/base.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { BlogEntity } from "./blog.entity";
 import { CategoryEntity } from "src/modules/category/entities/category.entity";
 
@@ -12,9 +12,9 @@ import { CategoryEntity } from "src/modules/category/entities/category.entity";
      categoryId:number
 
 
-     @ManyToOne(()=>BlogEntity,(blog)=>blog.categories,{nullable:true})
-     blog:BlogEntity
+     @ManyToOne(() => BlogEntity, blog => blog.categories, { onDelete: 'CASCADE' })
+     blog: BlogEntity;
 
-     @ManyToOne(()=>CategoryEntity,category=>category.blog_category,{onDelete:"CASCADE"})
+     @ManyToOne(()=>CategoryEntity,category=>category.blog_category, { onDelete: 'CASCADE' })
      category:CategoryEntity
  }

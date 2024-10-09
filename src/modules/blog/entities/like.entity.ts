@@ -13,9 +13,9 @@ import { BlogEntity } from "./blog.entity";
 
 
 
-    @ManyToOne(()=>UserEntity,user=>user.blogs_likes)
+    @ManyToOne(()=>UserEntity,user=>user.blogs_likes,{onDelete:"CASCADE"})
     user:UserEntity
-    @ManyToOne(()=>BlogEntity,blog=>blog.likes)
+    @ManyToOne(()=>BlogEntity,blog=>blog.likes,{onDelete:"CASCADE"})
     blog:BlogEntity
 
  }
