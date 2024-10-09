@@ -1,5 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
 import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "class-validator";
+import { EMPTY } from "rxjs";
 
  export class CreateBlogDto {
     @ApiProperty()
@@ -10,7 +11,7 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
     @ApiPropertyOptional({format:"binary"})
     image:string
     
-    @ApiPropertyOptional()
+    @ApiPropertyOptional({example:''})
     slug:string
 
     @ApiProperty()
@@ -34,6 +35,7 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
 
 
  }
+ export class updateBlogDto extends PartialType (CreateBlogDto) {}
 
 
 
@@ -41,3 +43,6 @@ import { IsArray, isArray, IsNotEmpty, IsNumber, IsNumberString, Length } from "
    category:string
    search:string
  }
+
+
+ 

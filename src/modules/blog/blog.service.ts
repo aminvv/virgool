@@ -2,7 +2,7 @@ import { BadRequestException, Get, Inject, Injectable, NotFoundException, Query,
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './entities/blog.entity';
 import { FindOptionsWhere, QueryBuilder, Repository } from 'typeorm';
-import { CreateBlogDto, filterBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, filterBlogDto, updateBlogDto } from './dto/blog.dto';
 import { createSlug, RandomId } from 'src/common/utils/functions.util';
 import { REQUEST } from '@nestjs/core';
 import { BlogStatus } from './enum/status.enum';
@@ -72,7 +72,7 @@ export class BlogService {
 
     async checkBlogBySlug(slug: string) {
         const blog = await this.blogRepository.findOneBy({ slug })
-        return !!blog
+        return  blog
     }
 
 
@@ -93,43 +93,43 @@ export class BlogService {
         const { limit, page, skip } = paginationSolver(paginationDto)
         let { category, search } = filterBlogDto
         let where = ''
-       
 
 
 
-        
-            // Initialize a parameters object for query parameters
-            const parameters: any = {};
-        
-            if (category && category.trim() !== '') {
-                category = category.toLowerCase();
-                if (where.length > 0) where += ' AND ';
-                where += 'category.title = :category';
-                parameters.category = category; // Add category to parameters
-            }
-        
-            if (search && search.trim() !== '') {
-                if (where.length > 0) where += ' AND ';
-                search = `%${search.toLowerCase()}%`;
-                where += 'CONCAT(blog.title, blog.description, blog.content) ILIKE :search';
-                parameters.search = search; // Add search to parameters
-            }
-        
-            // If there are no filters, return an empty array and count
-            if (where.length === 0) {
-            }
-        
-            console.log(where); // Optional: Logging the where clause for debugging
-        
-            const [blog, count] = await this.blogRepository.createQueryBuilder(EntityName.Blog)
-                .leftJoin("blog.categories", "categories")
-                .leftJoin("categories.category", "category")
-                .addSelect(['categories.id', 'category.title'])
-                .where(where, parameters)
-                .orderBy("blog.id", 'DESC')
-                .skip(skip)
-                .take(limit)
-                .getManyAndCount();
+
+
+        // Initialize a parameters object for query parameters
+        const parameters: any = {};
+
+        if (category && category.trim() !== '') {
+            category = category.toLowerCase();
+            if (where.length > 0) where += ' AND ';
+            where += 'category.title = :category';
+            parameters.category = category; // Add category to parameters
+        }
+
+        if (search && search.trim() !== '') {
+            if (where.length > 0) where += ' AND ';
+            search = `%${search.toLowerCase()}%`;
+            where += 'CONCAT(blog.title, blog.description, blog.content) ILIKE :search';
+            parameters.search = search; // Add search to parameters
+        }
+
+        // If there are no filters, return an empty array and count
+        if (where.length === 0) {
+        }
+
+        console.log(where); // Optional: Logging the where clause for debugging
+
+        const [blog, count] = await this.blogRepository.createQueryBuilder(EntityName.Blog)
+            .leftJoin("blog.categories", "categories")
+            .leftJoin("categories.category", "category")
+            .addSelect(['categories.id', 'category.title'])
+            .where(where, parameters)
+            .orderBy("blog.id", 'DESC')
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
 
 
 
@@ -207,6 +207,61 @@ export class BlogService {
         await this.blogRepository.delete({ id })
         return {
             message: publicMessage.Delete
+        }
+    }
+
+    async update(id: number, blogDto: updateBlogDto) {
+        const user = this.request.user
+        let { title, slug, content, description, image, time_for_study, categories } = blogDto
+        const blog = await this.checkExistBlogById(id)
+        if (!isArray(categories) && typeof categories === "string") {
+            categories = categories.split(",")
+        } else if (!isArray(categories)) {
+            throw new BadRequestException(BadRequestMessage.InvalidCategory)
+        }
+
+        
+        
+        const isExist = await this.checkBlogBySlug(slug)
+        if (isExist && isExist.id !== id) {
+            slug += `-${RandomId()}`
+            
+        }
+
+        let slugData=null
+        if(title){
+            slugData=title
+            blog.title=title}
+        if(slug)slugData=slug
+        if(slugData){
+            slug=createSlug(slugData)
+            this.checkBlogBySlug(slug)
+            blog.slug=slug
+        }
+        if(description)blog.description=description
+        if(content)blog.content=content
+        if(image)blog.image=image
+        if(time_for_study)blog.time_for_study=time_for_study
+
+        await this.blogRepository.save(blog)
+        if(categories && isArray(categories) && categories.length>0){
+            await this.blogCategoryRepository.delete({blogId:blog.id})
+        }
+        for (const categoryTitle of categories) {
+            let category = await this.categoryService.findOneByTitle(categoryTitle)
+            if (!category) {
+                category = await this.categoryService.insertByTitle(categoryTitle)
+            }
+            const checkCategoryExistInBlog=await this.blogCategoryRepository.findOneBy({categoryId:category.id,blogId:blog.id})
+            if(!checkCategoryExistInBlog){
+            await this.blogCategoryRepository.insert({
+                blogId: blog.id,
+                categoryId: category.id
+            })
+        }
+        }
+        return {
+            message: publicMessage.Update
         }
     }
 
