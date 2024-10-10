@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { BlogService } from './blog.service';
-import { CreateBlogDto, filterBlogDto, updateBlogDto } from './dto/blog.dto';
+import { BlogService } from '../services/blog.service';
+import { CreateBlogDto, filterBlogDto, updateBlogDto } from '../dto/blog.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '../auth/guard/auth.guard';
+import { AuthGuard } from '../../auth/guard/auth.guard';
 import { paginationDto } from 'src/common/dtos/pagination.dto';
 import { SkipAuth } from 'src/common/decorators/skip-auth.decorators';
 import { pagination } from 'src/common/decorators/pagination.decorator';

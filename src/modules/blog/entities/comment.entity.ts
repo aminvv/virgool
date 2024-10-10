@@ -14,7 +14,7 @@ import { join } from "path";
     blogId:number
     @Column()
     text:string
-    @Column()
+    @Column({nullable:true})
     parentId:number
     @Column({default:false})
     accepted:boolean

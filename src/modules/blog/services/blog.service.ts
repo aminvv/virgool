@@ -1,24 +1,25 @@
 import { BadRequestException, Get, Inject, Injectable, NotFoundException, Query, Scope, Search } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlogEntity } from './entities/blog.entity';
+import { BlogEntity } from '../entities/blog.entity';
 import { FindOptionsWhere, QueryBuilder, Repository } from 'typeorm';
-import { CreateBlogDto, filterBlogDto, updateBlogDto } from './dto/blog.dto';
+import { CreateBlogDto, filterBlogDto, updateBlogDto } from '../dto/blog.dto';
 import { createSlug, RandomId } from 'src/common/utils/functions.util';
 import { REQUEST } from '@nestjs/core';
-import { BlogStatus } from './enum/status.enum';
+import { BlogStatus } from '../enum/status.enum';
 import { Request } from 'express';
 import { BadRequestMessage, NotFoundMessage, publicMessage } from 'src/common/enums/message.enum';
 import { paginationDto } from 'src/common/dtos/pagination.dto';
 import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
 import { pagination } from 'src/common/decorators/pagination.decorator';
-import { CategoryService } from '../category/category.service';
+import { CategoryService } from '../../category/category.service';
 import { isArray } from 'class-validator';
-import { BlogCategoryEntity } from './entities/blog.category.entity';
+import { BlogCategoryEntity } from '../entities/blog.category.entity';
 import { title } from 'process';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { take } from 'rxjs';
-import { BlogLikesEntity } from './entities/like.entity';
-import { BookmarksEntity } from './entities/bookmark.entity';
+import { BlogLikesEntity } from '../entities/like.entity';
+import { BookmarksEntity } from '../entities/bookmark.entity';
+import { BlogCommentDto } from '../dto/blog-comment.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -31,7 +32,7 @@ export class BlogService {
         @InjectRepository(BookmarksEntity) private blogBookmarkRepository: Repository<BookmarksEntity>
         , private categoryService: CategoryService
     ) { }
-    async create(blogDto: CreateBlogDto) {
+    async create(  blogDto: CreateBlogDto) {
         const user = this.request.user
         let { title, slug, content, description, image, time_for_study, categories } = blogDto
         if (!isArray(categories) && typeof categories === "string") {

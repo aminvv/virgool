@@ -42,6 +42,7 @@ export enum publicMessage{
     Dislike=" با موفقیت  دیس لایک شد ",
     Bookmark=" با موفقیت  بوک مارک شد ",
     UnBookmark=" با موفقیت ان بوک مارک شد ",
+    CreatedComment=" نظر شما با موفقیت ان ثبت شد ",
 }
 
 export enum ConflictMessage{
