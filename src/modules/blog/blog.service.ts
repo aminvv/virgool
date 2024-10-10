@@ -74,7 +74,7 @@ export class BlogService {
 
     async checkBlogBySlug(slug: string) {
         const blog = await this.blogRepository.findOneBy({ slug })
-        return  blog
+        return blog
     }
 
 
@@ -126,9 +126,10 @@ export class BlogService {
         const [blog, count] = await this.blogRepository.createQueryBuilder(EntityName.Blog)
             .leftJoin("blog.categories", "categories")
             .leftJoin("categories.category", "category")
-  
-            .addSelect(['categories.id', 'category.title'])
-
+            .leftJoin("blog.author", "author")
+            .leftJoin("author.profile", "profile")
+            .loadRelationCountAndMap("blog.likes","blog.likes")
+            .addSelect(['categories.id', 'category.title','author.username','author.id','profile.nick_name'])
             .where(where, parameters)
             .orderBy("blog.id", 'DESC')
             .skip(skip)
@@ -224,45 +225,46 @@ export class BlogService {
             throw new BadRequestException(BadRequestMessage.InvalidCategory)
         }
 
-        
-        
+
+
         const isExist = await this.checkBlogBySlug(slug)
         if (isExist && isExist.id !== id) {
             slug += `-${RandomId()}`
-            
+
         }
 
-        let slugData=null
-        if(title){
-            slugData=title
-            blog.title=title}
-        if(slug)slugData=slug
-        if(slugData){
-            slug=createSlug(slugData)
-            this.checkBlogBySlug(slug)
-            blog.slug=slug
+        let slugData = null
+        if (title) {
+            slugData = title
+            blog.title = title
         }
-        if(description)blog.description=description
-        if(content)blog.content=content
-        if(image)blog.image=image
-        if(time_for_study)blog.time_for_study=time_for_study
+        if (slug) slugData = slug
+        if (slugData) {
+            slug = createSlug(slugData)
+            this.checkBlogBySlug(slug)
+            blog.slug = slug
+        }
+        if (description) blog.description = description
+        if (content) blog.content = content
+        if (image) blog.image = image
+        if (time_for_study) blog.time_for_study = time_for_study
 
         await this.blogRepository.save(blog)
-        if(categories && isArray(categories) && categories.length>0){
-            await this.blogCategoryRepository.delete({blogId:blog.id})
+        if (categories && isArray(categories) && categories.length > 0) {
+            await this.blogCategoryRepository.delete({ blogId: blog.id })
         }
         for (const categoryTitle of categories) {
             let category = await this.categoryService.findOneByTitle(categoryTitle)
             if (!category) {
                 category = await this.categoryService.insertByTitle(categoryTitle)
             }
-            const checkCategoryExistInBlog=await this.blogCategoryRepository.findOneBy({categoryId:category.id,blogId:blog.id})
-            if(!checkCategoryExistInBlog){
-            await this.blogCategoryRepository.insert({
-                blogId: blog.id,
-                categoryId: category.id
-            })
-        }
+            const checkCategoryExistInBlog = await this.blogCategoryRepository.findOneBy({ categoryId: category.id, blogId: blog.id })
+            if (!checkCategoryExistInBlog) {
+                await this.blogCategoryRepository.insert({
+                    blogId: blog.id,
+                    categoryId: category.id
+                })
+            }
         }
         return {
             message: publicMessage.Update
@@ -270,16 +272,16 @@ export class BlogService {
     }
 
 
-    async likeToggle(blogId:number){
-        const {id:userId}=this.request.user
-        const blog=await this.checkExistBlogById(blogId)
-        const isLiked=await this.blogLikeRepository.findOneBy({userId,blogId})
-        let  message=publicMessage.like
-        if(isLiked){
-            await this.blogLikeRepository.delete({id:isLiked.id})
-            message=publicMessage.dislike
-        }else{
-            await this.blogLikeRepository.insert({userId,blogId})
+    async likeToggle(blogId: number) {
+        const { id: userId } = this.request.user
+        const blog = await this.checkExistBlogById(blogId)
+        const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId })
+        let message = publicMessage.like
+        if (isLiked) {
+            await this.blogLikeRepository.delete({ id: isLiked.id })
+            message = publicMessage.dislike
+        } else {
+            await this.blogLikeRepository.insert({ userId, blogId })
         }
 
         return {
