@@ -17,6 +17,7 @@ import { BlogCategoryEntity } from './entities/blog.category.entity';
 import { title } from 'process';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { take } from 'rxjs';
+import { BlogLikesEntity } from './entities/like.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -24,7 +25,8 @@ export class BlogService {
     constructor(
         @Inject(REQUEST) private request: Request,
         @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
-        @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>
+        @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>,
+        @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>
         , private categoryService: CategoryService
     ) { }
     async create(blogDto: CreateBlogDto) {
@@ -124,7 +126,9 @@ export class BlogService {
         const [blog, count] = await this.blogRepository.createQueryBuilder(EntityName.Blog)
             .leftJoin("blog.categories", "categories")
             .leftJoin("categories.category", "category")
+  
             .addSelect(['categories.id', 'category.title'])
+
             .where(where, parameters)
             .orderBy("blog.id", 'DESC')
             .skip(skip)
@@ -265,4 +269,22 @@ export class BlogService {
         }
     }
 
+
+    async likeToggle(blogId:number){
+        const {id:userId}=this.request.user
+        const blog=await this.checkExistBlogById(blogId)
+        const isLiked=await this.blogLikeRepository.findOneBy({userId,blogId})
+        let  message=publicMessage.like
+        if(isLiked){
+            await this.blogLikeRepository.delete({id:isLiked.id})
+            message=publicMessage.dislike
+        }else{
+            await this.blogLikeRepository.insert({userId,blogId})
+        }
+
+        return {
+            message
+        }
+
+    }
 }

@@ -38,6 +38,8 @@ export enum publicMessage{
     Delete="با موفقیت حدف شد",
     Update=" با موفقیت به روز رسانی شد",
     Inserted=" با موفقیت درج شد ",
+    like=" با موفقیت لایک شد ",
+    dislike=" با موفقیت  دیس لایک شد ",
 }
 
 export enum ConflictMessage{
