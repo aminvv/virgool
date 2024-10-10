@@ -39,7 +39,9 @@ export enum publicMessage{
     Update=" با موفقیت به روز رسانی شد",
     Inserted=" با موفقیت درج شد ",
     like=" با موفقیت لایک شد ",
-    dislike=" با موفقیت  دیس لایک شد ",
+    Dislike=" با موفقیت  دیس لایک شد ",
+    Bookmark=" با موفقیت  بوک مارک شد ",
+    UnBookmark=" با موفقیت ان بوک مارک شد ",
 }
 
 export enum ConflictMessage{
