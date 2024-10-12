@@ -6,6 +6,8 @@ export enum BadRequestMessage{
  InValidRegisterData="اطلاعات ارسال شده برای ثبت نام صحیح نمیشباشد",
  SomeThingWrong="خطایی پیش امده",
  InvalidCategory="دسته بندی هارو درست وارد کنید",
+ AlreadyAccepted="کامنت مورد نظر قبلا نایید شده",
+ AlreadyRejected="کامنت مورد نظر قبلا رد شده",
 }
 
 export enum AuthMessage{

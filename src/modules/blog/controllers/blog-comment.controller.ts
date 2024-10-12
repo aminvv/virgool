@@ -1,4 +1,4 @@
-import { Body, Controller,  Get,  Param,  Post,  Query,  UseGuards } from '@nestjs/common';
+import { Body, Controller,  Get,  Param,  Post,  Put,  Query,  UseGuards } from '@nestjs/common';
 import { BlogService } from '../services/blog.service';
 import { CreateBlogDto } from '../dto/blog.dto';
 import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
@@ -30,6 +30,15 @@ export class BlogCommentController {
     return this.blogCommentService.findComment(pagination)
   }
 
+  @Put('/accept-comment')
+  acceptComment(@Param('id') id :number){
+    return this.blogCommentService.acceptComment(id)
+  }
 
+
+  @Put('/reject-comment')
+  rejectComment(@Param('id') id :number){
+    return this.blogCommentService.rejectComment(id)
+  }
 
 }
