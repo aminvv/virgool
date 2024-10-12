@@ -62,6 +62,10 @@ export class BlogController {
     return this.blogService.bookmarkToggle(id)
   }
 
+  @Get('/by-slug/:slug')
+  findOneBySlug(@Param("slug") slug:string){
+    return this.blogService.findOneBySlug(slug)
 
+  }
 
 }

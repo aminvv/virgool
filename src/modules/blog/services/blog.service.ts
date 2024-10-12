@@ -18,9 +18,7 @@ import { title } from 'process';
 import { EntityName } from 'src/common/enums/entity.enum';
 import { take } from 'rxjs';
 import { BlogLikesEntity } from '../entities/like.entity';
-import { BookmarksEntity } from '../entities/bookmark.entity';
-import { BlogCommentDto } from '../dto/blog-comment.dto';
-import { CommentsEntity } from '../entities/comment.entity';
+import { BookmarksEntity } from '../entities/bookmark.entity'; import { CommentsEntity } from '../entities/comment.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -29,12 +27,12 @@ export class BlogService {
         @Inject(REQUEST) private request: Request,
         @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
         @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>,
-        @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>, 
+        @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>,
         @InjectRepository(BookmarksEntity) private blogBookmarkRepository: Repository<BookmarksEntity>,
         @InjectRepository(CommentsEntity) private blogCommentRepository: Repository<CommentsEntity>
         , private categoryService: CategoryService
     ) { }
-    async create(  blogDto: CreateBlogDto) {
+    async create(blogDto: CreateBlogDto) {
         const user = this.request.user
         let { title, slug, content, description, image, time_for_study, categories } = blogDto
         if (!isArray(categories) && typeof categories === "string") {
@@ -133,12 +131,12 @@ export class BlogService {
             .leftJoin("categories.category", "category")
             .leftJoin("blog.author", "author")
             .leftJoin("author.profile", "profile")
-            .loadRelationCountAndMap("blog.likes","blog.likes")
-            .loadRelationCountAndMap("blog.bookmarks","blog.bookmarks")
-            .loadRelationCountAndMap("blog.comments","blog.comments", "comments",(qb)=>
-            qb.where("comments.accepted =:accepted",{accepted:true})
+            .loadRelationCountAndMap("blog.likes", "blog.likes")
+            .loadRelationCountAndMap("blog.bookmarks", "blog.bookmarks")
+            .loadRelationCountAndMap("blog.comments", "blog.comments", "comments", (qb) =>
+                qb.where("comments.accepted =:accepted", { accepted: true })
             )
-            .addSelect(['categories.id', 'category.title','author.username','author.id','profile.nick_name'])
+            .addSelect(['categories.id', 'category.title', 'author.username', 'author.id', 'profile.nick_name'])
             .where(where, parameters)
             .orderBy("blog.id", 'DESC')
             .skip(skip)
@@ -250,7 +248,11 @@ export class BlogService {
         if (slug) slugData = slug
         if (slugData) {
             slug = createSlug(slugData)
-            this.checkBlogBySlug(slug)
+            const isExist = await this.checkBlogBySlug(slug)
+            if (isExist && isExist.id !== id) {
+                slug += `-${RandomId()}`
+
+            }
             blog.slug = slug
         }
         if (description) blog.description = description
@@ -303,7 +305,7 @@ export class BlogService {
     async bookmarkToggle(blogId: number) {
         const { id: userId } = this.request.user
         const blog = await this.checkExistBlogById(blogId)
-        const isBookmark= await this.blogBookmarkRepository.findOneBy({ userId, blogId })
+        const isBookmark = await this.blogBookmarkRepository.findOneBy({ userId, blogId })
         let message = publicMessage.Bookmark
         if (isBookmark) {
             await this.blogBookmarkRepository.delete({ id: isBookmark.id })
@@ -312,12 +314,43 @@ export class BlogService {
             await this.blogBookmarkRepository.insert({ userId, blogId })
         }
 
-        return { 
+        return {
             message
         }
 
     }
 
+
+
+    async findOneBySlug(slug: string) {
+        const userId = this.request?.user?.id
+        const blog = await this.blogRepository.createQueryBuilder(EntityName.Blog)
+            .leftJoin("blog.categories", "categories")
+            .leftJoin("categories.category", "category")
+            .leftJoin("blog.author", "author")
+            .leftJoin("author.profile", "profile")
+            .addSelect(['categories.id', 'category.title', 'author.username', 'author.id', 'profile.nick_name'])
+            .where("blog.slug = :slug",{ slug })
+            .loadRelationCountAndMap('blog.likes', 'blog.likes')
+            .loadRelationCountAndMap('blog.bookmarks', 'blog.bookmarks')
+            .leftJoinAndSelect('blog.comments', 'comments', 'comments.accepted = :accepted', { accepted: true })
+            .getOne()
+
+    //     const blog = await this.blogRepository.createQueryBuilder(EntityName.Blog)
+    // .where("blog.slug = :slug", { slug })
+    // .getOne();
+
+
+
+        if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundPost)
+        const isLiked = !!await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id })
+        const isBookmarked =!! await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id })
+        const blogData = { isBookmarked, isLiked, ...blog }
+        
+        return {
+            blogData
+        }
+    }
 
 
 }
