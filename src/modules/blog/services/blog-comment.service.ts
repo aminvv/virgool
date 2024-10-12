@@ -9,6 +9,8 @@ import { BlogService } from './blog.service';
 import { Repository } from 'typeorm';
 import { BlogCommentDto } from '../dto/blog-comment.dto';
 import { publicMessage } from 'src/common/enums/message.enum';
+import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
+import { paginationDto } from 'src/common/dtos/pagination.dto';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogCommentService {
@@ -39,8 +41,38 @@ export class BlogCommentService {
         return{
             message:publicMessage.CreatedComment
         }
-    }
 
+
+        
+    }
+    async findComment(paginationDto:paginationDto){
+        const{limit,page,skip}=paginationSolver(paginationDto)
+        const [comments,count]=await this.blogCommentRepository.findAndCount({
+            where:{},
+            relations:{
+                blog:true,
+                user:true
+            },
+            select:{
+                blog:{
+                    title:true
+                },
+                user:{
+                    username:true,
+                    profile:{
+                        nick_name:true
+                    }
+                }
+            },
+            take:limit,
+            skip,
+        })
+         return{
+            pagination:paginationGenerator(limit,page,count),
+            comments
+            
+         }
+    }
 
     
 

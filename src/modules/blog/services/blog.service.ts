@@ -20,6 +20,7 @@ import { take } from 'rxjs';
 import { BlogLikesEntity } from '../entities/like.entity';
 import { BookmarksEntity } from '../entities/bookmark.entity';
 import { BlogCommentDto } from '../dto/blog-comment.dto';
+import { CommentsEntity } from '../entities/comment.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class BlogService {
@@ -29,7 +30,8 @@ export class BlogService {
         @InjectRepository(BlogEntity) private blogRepository: Repository<BlogEntity>,
         @InjectRepository(BlogCategoryEntity) private blogCategoryRepository: Repository<BlogCategoryEntity>,
         @InjectRepository(BlogLikesEntity) private blogLikeRepository: Repository<BlogLikesEntity>, 
-        @InjectRepository(BookmarksEntity) private blogBookmarkRepository: Repository<BookmarksEntity>
+        @InjectRepository(BookmarksEntity) private blogBookmarkRepository: Repository<BookmarksEntity>,
+        @InjectRepository(CommentsEntity) private blogCommentRepository: Repository<CommentsEntity>
         , private categoryService: CategoryService
     ) { }
     async create(  blogDto: CreateBlogDto) {
@@ -315,4 +317,7 @@ export class BlogService {
         }
 
     }
+
+
+
 }
