@@ -61,11 +61,12 @@ export class BlogController {
   bookmarkToggle(@Param("id",ParseIntPipe) id:number){
     return this.blogService.bookmarkToggle(id)
   }
-
+  @pagination()
   @Get('/by-slug/:slug')
-  findOneBySlug(@Param("slug") slug:string){
-    return this.blogService.findOneBySlug(slug)
+  findOneBySlug(@Param("slug") slug:string,@Query()paginationDto:paginationDto){
+    return this.blogService.findOneBySlug(slug,paginationDto)
 
   }
+
 
 }
