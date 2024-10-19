@@ -3,14 +3,15 @@ import { ImageDto } from './dto/image.dto';
 import { ImageEntity } from './entities/image.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { MulterFile } from 'src/common/utils/multer.util';
 
 @Injectable()
 export class ImageService {
   constructor(@InjectRepository(ImageEntity) private imageRepository:Repository<ImageEntity>){}
 
   
-  create(ImageDto: ImageDto) {
-    return 'This action adds a new image';
+  create(ImageDto: ImageDto,image:MulterFile) {
+    return image
   }
 
   findAll() {

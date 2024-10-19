@@ -13,11 +13,11 @@ import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 import { publicMessage } from 'src/common/enums/message.enum';
 import { Response } from 'express';
 import { CheckOtpDto } from 'src/modules/auth/dto/auth.dto';
+import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 
 @Controller('user')
 @ApiTags('user')
-@ApiBearerAuth("Authorization")
-@UseGuards(AuthGuard)
+@AuthDecorator()
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
