@@ -27,14 +27,14 @@ export class ImageController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.imageService.findOne(+id);
+  findOne(@Param('id') id:number) {
+    return this.imageService.findOne(id);
   }
 
 
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.imageService.remove(+id);
+  remove(@Param('id') id:number) {
+    return this.imageService.remove(id);
   }
 }
