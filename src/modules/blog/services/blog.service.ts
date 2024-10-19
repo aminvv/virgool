@@ -1,7 +1,7 @@
 import { BadRequestException, forwardRef, Get, Inject, Injectable, NotFoundException, Query, Scope, Search } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
-import { FindOptionsWhere, QueryBuilder, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateBlogDto, filterBlogDto, updateBlogDto } from '../dto/blog.dto';
 import { createSlug, RandomId } from 'src/common/utils/functions.util';
 import { REQUEST } from '@nestjs/core';
@@ -10,13 +10,10 @@ import { Request } from 'express';
 import { BadRequestMessage, NotFoundMessage, publicMessage } from 'src/common/enums/message.enum';
 import { paginationDto } from 'src/common/dtos/pagination.dto';
 import { paginationGenerator, paginationSolver } from 'src/common/utils/pagination.util';
-import { pagination } from 'src/common/decorators/pagination.decorator';
 import { CategoryService } from '../../category/category.service';
 import { isArray } from 'class-validator';
 import { BlogCategoryEntity } from '../entities/blog.category.entity';
-import { title } from 'process';
 import { EntityName } from 'src/common/enums/entity.enum';
-import { take } from 'rxjs';
 import { BlogLikesEntity } from '../entities/like.entity';
 import { BookmarksEntity } from '../entities/bookmark.entity'; import { CommentsEntity } from '../entities/comment.entity';
 import { BlogCommentService } from './blog-comment.service';
@@ -321,11 +318,11 @@ export class BlogService {
         }
 
     }
-
+ 
 
 
     async findOneBySlug(slug: string, paginationDto: paginationDto) {
-        const userId = this.request?.user?.id
+        const userId = this.request.user?.id
         const blog = await this.blogRepository.createQueryBuilder(EntityName.Blog)
             .leftJoin("blog.categories", "categories")
             .leftJoin("categories.category", "category")
@@ -342,13 +339,14 @@ export class BlogService {
         // .where("blog.slug = :slug", { slug })
         // .getOne();
 
-
-
         if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundPost)
-        const commentsData = await this.blogCommentService.findCommendOfBlog(blog.id, paginationDto)
-        const isLiked = !!await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id })
-        const isBookmarked = !! await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id })
-
+            const commentsData = await this.blogCommentService.findCommendOfBlog(blog.id, paginationDto)
+                let isLiked=false
+                let isBookmarked=false                
+        if(userId && !isNaN(userId) && userId>0 ){
+             isLiked = !!await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id })
+             isBookmarked = !! await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id })
+        }
         return {
             blog,
             isLiked,
