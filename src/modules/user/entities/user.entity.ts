@@ -7,6 +7,7 @@ import { BlogEntity } from "src/modules/blog/entities/blog.entity";
 import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
 import { BookmarksEntity } from "src/modules/blog/entities/bookmark.entity";
 import { CommentsEntity } from "src/modules/blog/entities/comment.entity";
+import { ImageEntity } from "src/modules/image/entities/image.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntityCustom {
@@ -78,6 +79,9 @@ export class UserEntity extends BaseEntityCustom {
     
     @OneToMany(()=>CommentsEntity,comment=>comment.user)
     blog_comments:CommentsEntity[]
+
+    @OneToMany(()=>ImageEntity,(image)=>image.user)
+    images:ImageEntity[]
 
 }
  
