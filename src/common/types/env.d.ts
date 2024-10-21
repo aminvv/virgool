@@ -18,5 +18,6 @@ namespace NodeJS{
         EMAIL_TOKEN_SECRET:string
         PHONE_TOKEN_SECRET:string
 
+        SEND_SMS_URL:string
     }
 } 

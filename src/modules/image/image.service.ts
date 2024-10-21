@@ -11,50 +11,51 @@ import { Request } from 'express';
 @Injectable({ scope: Scope.REQUEST })
 export class ImageService {
   constructor(@InjectRepository(ImageEntity) private imageRepository: Repository<ImageEntity>,
-  @Inject(REQUEST) private request:Request
+    @Inject(REQUEST) private request: Request
   ) { }
 
-
-  async create(ImageDto: ImageDto, image: MulterFile) {
+  async create(imageDto: ImageDto, image: MulterFile) {
     const userId = this.request.user.id
-    const { alt, name } = ImageDto
+    const { alt, name } = imageDto
     let location = image?.path?.slice(7)
     await this.imageRepository.insert({
       alt: alt || name,
       name,
-      location,
-      userId
+      location: location,
+      userId,
     })
     return {
       message: publicMessage.created
     }
   }
 
-  findAll() {
-    const userId = this.request.user.id
-    return this.imageRepository.find({
-      where: { userId },
-      order: { id: "DESC" }
+  async findAll(){
+    const userId=this.request.user.id
+    return await this.imageRepository.find({
+      where:{userId},
+      order:{id:"DESC"}
     })
   }
 
- async findOne(id: number) {
-    const userId = this.request.user.id
-    const image= await this.imageRepository.findOne({
-      where: { userId ,id},
-      order: { id: "DESC" }
+  async findOne(id:number){
+    const userId=this.request.user.id
+    const image=await this.imageRepository.findOne({
+      where:{userId,id},
+      order:{id:"DESC"}
     })
-    if(!image)throw new NotFoundException(NotFoundMessage.NotFound)
+    if(!image)throw new NotFoundException(NotFoundMessage.NotFound);
     return image
+
+    
   }
 
-
-
-  async remove(id: number) {
+  async remove(id:number){
     const image=await this.findOne(id)
     await this.imageRepository.remove(image)
-    return {
+    return{
       message:publicMessage.Delete
-    } 
+    }
   }
+
+
 }

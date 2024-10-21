@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CategoryModule } from '../category/category.module';
 import { BlogModule } from '../blog/blog.module';
 import { ImageModule } from '../image/image.module';
+import { CustomHttpModule } from '../http/http.module';
 @Module({
   imports: [ConfigModule.forRoot({envFilePath:join(process.cwd(),'.env')}),
     TypeOrmModule.forRoot(TypeOrmConfig()),
@@ -17,6 +18,7 @@ import { ImageModule } from '../image/image.module';
     CategoryModule,
     BlogModule,
     ImageModule,
+    CustomHttpModule
   ],
 
 })

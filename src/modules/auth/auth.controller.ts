@@ -6,6 +6,9 @@ import { swaggerConsumes } from 'src/common/enums/swagger-consumes.enum';
 import { Request, Response } from 'express';
 import { request } from 'http';
 import { AuthGuard } from './guard/auth.guard';
+import { CanAccess } from 'src/common/decorators/role.decorator';
+import { Roles } from 'src/common/enums/role.enum';
+import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 
 @ApiTags('auth')
 @Controller('auth')

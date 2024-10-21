@@ -14,27 +14,27 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Post()
-  @UseInterceptors()
   @UseInterceptors(UploadFile("image"))
   @ApiConsumes(swaggerConsumes.MultiPartData)
-  create(@Body() imageDto: ImageDto,@UploadedFile() image:MulterFile) {
-    return this.imageService.create(imageDto,image);
+  create(@Body() ImageDto:ImageDto, @UploadedFile() image:MulterFile){
+    return this.imageService.create(ImageDto,image)
+
   }
 
   @Get()
-  findAll() {
-    return this.imageService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id:number) {
-    return this.imageService.findOne(id);
+  findAll(){
+    return this.imageService.findAll()
   }
 
 
+  @Get('/:id')
+  findOne(@Param('id') id:number){
+    return this.imageService.findOne(id)
+  }
 
-  @Delete(':id')
-  remove(@Param('id') id:number) {
-    return this.imageService.remove(id);
+
+  @Delete('/:id')
+  remove(@Param('id') id:number){
+    return this.imageService.remove(id)
   }
 }
