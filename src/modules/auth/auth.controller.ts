@@ -34,6 +34,8 @@ export class AuthController {
 
   @Get("/check-guard")
   @ApiBearerAuth("Authorization")
+  @AuthDecorator()
+  @CanAccess( Roles.Admin)
   @UseGuards(AuthGuard)
   checkGuard(@Req() req:Request){
     return req.user
