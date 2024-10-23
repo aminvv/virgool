@@ -9,4 +9,5 @@ export enum EntityName{
     BlogComments="blog_comments",
     BlogBookmarks="blog_bookmarks",
     Image="image",
+    follow="follow"
 }
