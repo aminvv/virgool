@@ -45,6 +45,8 @@ export enum publicMessage{
     Bookmark=" با موفقیت  بوک مارک شد ",
     UnBookmark=" با موفقیت ان بوک مارک شد ",
     CreatedComment=" نظر شما با موفقیت ان ثبت شد ",
+    followed="  با موفقیت دنبال شد ",
+    unFollow=" از لیست دنبال شوندگان حذف شد",
 }
 
 export enum ConflictMessage{

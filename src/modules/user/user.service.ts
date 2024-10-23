@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Scope } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
@@ -10,13 +10,14 @@ import { ProfileEntity } from './entities/profile.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Gender } from 'src/common/enums/gender.enum';
 import { isDate } from 'class-validator';
-import { AuthMessage, BadRequestMessage, ConflictMessage, publicMessage } from 'src/common/enums/message.enum';
+import { AuthMessage, BadRequestMessage, ConflictMessage, NotFoundMessage, publicMessage } from 'src/common/enums/message.enum';
 import { ProfileImage } from './types/files';
 import { AuthService } from 'src/modules/auth/auth.service';
 import { TokenService } from 'src/modules/auth/token.service';
 import { OtpEntity } from './entities/otp.entity';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { AuthMethod } from 'src/modules/auth/enums/method.enums';
+import { followEntity } from './entities/follow.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -26,6 +27,7 @@ export class UserService {
     @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
     @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
     @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
+    @InjectRepository(followEntity) private followRepository: Repository<followEntity>,
     private authService: AuthService,
     private tokenService: TokenService,
   ) { }
@@ -87,6 +89,10 @@ export class UserService {
     });
   }
 
+  async findAll(){
+   return await this.userRepository.find({where:{}})
+  }
+
 
 
   async changeEmail(email: string) {
@@ -134,6 +140,20 @@ export class UserService {
   }
 
 
+  async follow(followingId:number){
+    const{id:userId}=this.request.user
+const following= this.userRepository.findOneBy({id:followingId})
+if(!following) throw new NotFoundException(NotFoundMessage.NotFound)
+  let message=publicMessage.followed
+  const isFollowing=await this.followRepository.findOneBy({followingId,followerId:userId})
+if(isFollowing){
+  await this.followRepository.remove(isFollowing)
+  return message=publicMessage.unFollow
+}else{
+  await this.followRepository.insert({followingId,followerId:userId})
+  return message
+}
+  }
 
 
 

@@ -6,6 +6,7 @@ import { CommentsEntity } from "src/modules/blog/entities/comment.entity";
 import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
 import { CategoryEntity } from "src/modules/category/entities/category.entity";
 import { ImageEntity } from "src/modules/image/entities/image.entity";
+import { followEntity } from "src/modules/user/entities/follow.entity";
 import { OtpEntity } from "src/modules/user/entities/otp.entity";
 import { ProfileEntity } from "src/modules/user/entities/profile.entity";
 import { UserEntity } from "src/modules/user/entities/user.entity";
@@ -19,7 +20,7 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
         username: DB_USERNAME,
         password: DB_PASSWORD,
         autoLoadEntities: false,
-        entities: [UserEntity,OtpEntity,ProfileEntity,CategoryEntity,BlogLikesEntity,BlogEntity,CommentsEntity,BookmarksEntity,BlogCategoryEntity,ImageEntity],
+        entities: [UserEntity,OtpEntity,ProfileEntity,CategoryEntity,BlogLikesEntity,BlogEntity,CommentsEntity,BookmarksEntity,BlogCategoryEntity,ImageEntity,followEntity],
         synchronize: true,
         type: 'postgres',
     }

@@ -38,11 +38,20 @@ export class UserController {
     return this.userService.changeProfile(files, profileDto);
   }
 
-
+  @Get('/follow/:followingId')
+  follow(@Param("followingId") followingId:number){
+    return this.userService.follow(followingId)
+  }
 
   @Get("/profile")
   profile() {
     return this.userService.profile()
+  }
+
+
+  @Get("/findAll")
+  findAll() {
+    return this.userService.findAll()
   }
 
 
