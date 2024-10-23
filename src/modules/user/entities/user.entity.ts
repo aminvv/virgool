@@ -88,9 +88,15 @@ export class UserEntity extends BaseEntityCustom {
     @OneToMany(() => ImageEntity, (image) => image.user)
     images: ImageEntity[]
 
-    @OneToMany(()=>followEntity,(follow)=>follow.followers)
-    followers:followEntity[]
+    // @OneToMany(()=>followEntity,(follow)=>follow.following)
+    // followers:followEntity[]
 
-    @OneToMany(()=>followEntity,(follow)=>follow.following)
-    following:followEntity[]
+    // @OneToMany(()=>followEntity,(follow)=>follow.follower)
+    // following:followEntity[]
+
+    @OneToMany(() => followEntity, (follow) => follow.following)
+    followers: followEntity[]; 
+  
+    @OneToMany(() => followEntity, (follow) => follow.follower)
+    following: followEntity[];
 }
