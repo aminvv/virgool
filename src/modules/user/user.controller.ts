@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, UploadedFiles, ParseFilePipe, UseGuards, Res, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ChangEmailDto, ChangPhoneDto, ChangUsernameDto, profileDto } from './dto/profile.dto';
@@ -14,6 +14,7 @@ import { publicMessage } from 'src/common/enums/message.enum';
 import { Response } from 'express';
 import { CheckOtpDto } from 'src/modules/auth/dto/auth.dto';
 import { AuthDecorator } from 'src/common/decorators/auth.decorator';
+import { paginationDto } from 'src/common/dtos/pagination.dto';
 
 @Controller('user')
 @ApiTags('user')
@@ -53,6 +54,16 @@ export class UserController {
   findAll() {
     return this.userService.findAll()
   }
+
+  @Get("/followers")
+   followers(@Query() pagination:paginationDto){
+    return this.userService.followers(pagination)
+   }
+
+   @Get("/following")
+   following(@Query() pagination:paginationDto){
+    return this.userService.following(pagination)
+   }
 
 
 

@@ -19,7 +19,7 @@ export class ProfileEntity extends BaseEntityCustom {
     bio: string
 
     @Column({ nullable: true })
-    image_profile: String
+    image_profile: string
 
     @Column({ nullable: true  })
     bg_image: string

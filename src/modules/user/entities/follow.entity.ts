@@ -12,18 +12,11 @@ export class followEntity extends BaseEntityCustom {
     create_at:Date
 
 
-    // @ManyToOne(() => UserEntity, (user) => user.followers, { onDelete: "CASCADE" })
-    // follower: UserEntity
-
-    // @ManyToOne(() => UserEntity, (user) => user.following, { onDelete: "CASCADE" })
-    // following: UserEntity
-
 
 
     @ManyToOne(() => UserEntity, (user) => user.followers, { onDelete: 'CASCADE' })
-    follower: UserEntity;  // رابطه‌ای که کاربر دنبال‌کننده را نشان می‌دهد
+    follower: UserEntity;  
   
     @ManyToOne(() => UserEntity, (user) => user.following, { onDelete: 'CASCADE' })
-    following: UserEntity;  // رابطه‌ای که کاربر دنبال‌شده را نشان می‌دهد
-
+    following: UserEntity; 
 }
