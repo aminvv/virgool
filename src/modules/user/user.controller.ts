@@ -12,9 +12,11 @@ import { CookieKeys } from 'src/common/enums/cookie.enum';
 import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 import { publicMessage } from 'src/common/enums/message.enum';
 import { Response } from 'express';
-import { CheckOtpDto } from 'src/modules/auth/dto/auth.dto';
+import { blokeDto, CheckOtpDto } from 'src/modules/auth/dto/auth.dto';
 import { AuthDecorator } from 'src/common/decorators/auth.decorator';
 import { paginationDto } from 'src/common/dtos/pagination.dto';
+import { CanAccess } from 'src/common/decorators/role.decorator';
+import { Roles } from 'src/common/enums/role.enum';
 
 @Controller('user')
 @ApiTags('user')
@@ -65,6 +67,13 @@ export class UserController {
     return this.userService.following(pagination)
    }
 
+
+   @Post('/block')
+  //  @CanAccess(Roles.Admin)
+   @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
+   blokeToggle(@Body() blokeDto:blokeDto){
+    return this.userService.blokeToggle(blokeDto)
+   }
 
 
   @Patch('/change-email')

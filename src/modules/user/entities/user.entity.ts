@@ -10,6 +10,7 @@ import { CommentsEntity } from "src/modules/blog/entities/comment.entity";
 import { ImageEntity } from "src/modules/image/entities/image.entity";
 import { Roles } from "src/common/enums/role.enum";
 import { followEntity } from "./follow.entity";
+import { UserStatus } from "src/common/enums/status.enum";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntityCustom {
@@ -26,6 +27,10 @@ export class UserEntity extends BaseEntityCustom {
 
     @Column({ nullable: true })
     new_email: string
+
+
+    @Column({ nullable: true })
+    status:string
 
 
     @Column({ nullable: true, default: false })

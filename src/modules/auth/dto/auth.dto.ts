@@ -31,3 +31,8 @@ export class CheckOtpDto{
     code:string
     
 }
+
+export class blokeDto{
+    @ApiProperty()
+    userId:number
+}
