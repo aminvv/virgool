@@ -283,7 +283,7 @@ export class BlogService {
 
 
     async likeToggle(blogId: number) {
-        const { id: userId } = this.request.user
+        const { id: userId } = this.request.user 
         const blog = await this.checkExistBlogById(blogId)
         const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId })
         let message = publicMessage.like
@@ -297,7 +297,7 @@ export class BlogService {
         return {
             message
         }
-
+ 
     }
 
 

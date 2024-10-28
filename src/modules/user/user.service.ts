@@ -89,7 +89,7 @@ export class UserService {
   profile() {
     const { id } = this.request.user
     return this.userRepository.createQueryBuilder(EntityName.User)
-      .where(id)
+      .where({id})
       .leftJoinAndSelect('user.profile', 'profile')
       .loadRelationCountAndMap('user.followers', 'user.followers')
       .loadRelationCountAndMap('user.following', 'user.following')
@@ -310,7 +310,7 @@ export class UserService {
       message: publicMessage.Update
 
     }
-  }
+  } 
 
 
 

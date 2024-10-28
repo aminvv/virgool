@@ -18,10 +18,10 @@ export class RoleGuard implements CanActivate {
         if (!requiredRoles ||  requiredRoles.length == 0) return true
         const request:Request=context.switchToHttp().getRequest<Request>()
         const user=request.user
-        const userRole=user?.role ?? Roles.User
+        const userRole=user?.role as Roles ?? Roles.User
         if(user.role=== Roles.Admin) return true
         if(requiredRoles.includes(userRole))return true
         throw new ForbiddenException()
     }
     
-    }
+    } 
