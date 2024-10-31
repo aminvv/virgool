@@ -13,38 +13,39 @@ import { randomInt } from 'crypto';
 import { TokenService } from './token.service';
 import { Request, Response } from 'express';
 import { CookieKeys } from 'src/common/enums/cookie.enum';
-import { AuthResponse } from './enums/response';
+import { AuthResponse, googleUser } from './enums/response';
 import { REQUEST } from '@nestjs/core';
 import { CookieOptionsToken } from 'src/common/utils/cookie.util';
 import { KavenegarService } from '../http/kavenegar.service';
+import { RandomId } from 'src/common/utils/functions.util';
 
-@Injectable({scope:Scope.REQUEST})
+@Injectable({ scope: Scope.REQUEST })
 export class AuthService {
 
     constructor(
-        @Inject(REQUEST) private request:Request,
+        @Inject(REQUEST) private request: Request,
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
         @InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
         @InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
         private tokenService: TokenService,
-        private kavenegarService:KavenegarService,
+        private kavenegarService: KavenegarService,
     ) { }
 
 
     async userExistence(AuthDto: AuthDto, res: Response) {
         const { method, type, username } = AuthDto
-        let result:AuthResponse
+        let result: AuthResponse
         switch (type) {
             case AuthType.Login: {
-                 result=await  this.login(method, username)
+                result = await this.login(method, username)
                 //  await this.sendOtp(method,username,result.code)
-                 return this.sendResponse(res,result)
+                return this.sendResponse(res, result)
             }
 
             case AuthType.Register: {
-                 result= await this.register(method, username)
+                result = await this.register(method, username)
                 //  await this.sendOtp(method,username,result.code)
-                 return this.sendResponse(res,result)
+                return this.sendResponse(res, result)
             }
 
             default:
@@ -55,36 +56,36 @@ export class AuthService {
 
 
 
-    async sendResponse(res:Response ,result:AuthResponse){
-        const{token,code}=result
-        res.cookie(CookieKeys.OTP,token,CookieOptionsToken())
+    async sendResponse(res: Response, result: AuthResponse) {
+        const { token, code } = result
+        res.cookie(CookieKeys.OTP, token, CookieOptionsToken())
         res.json({
             token,
             code,
-            message:publicMessage.SendOtp
-            
+            message: publicMessage.SendOtp
+
         })
     }
 
-    async checkOtp(code:string){
-        const token= this.request.cookies?.[CookieKeys.OTP]
-        if(!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
-            const {userId}=this.tokenService.verifyOtpToken(token)
-            const otp=await this.otpRepository.findOneBy({userId})
-            if(!otp)throw new UnauthorizedException(AuthMessage.loginAgain)
-                if(otp.expiresIn < new Date())throw new UnauthorizedException(AuthMessage.TryAgain)
-                    if(otp.code !== code)throw new UnauthorizedException(AuthMessage.TryAgain)
-                        const  accessToken=this.tokenService.createAccessToken({userId})
-                        if(otp.method===AuthMethod.Email){
-                            await this.userRepository.update({id:userId},{verify_email:true})
-                        }else if(otp.method ===AuthMethod.phone){
-                            await this.userRepository.update({id:userId},{verify_phone:true})
-                        }
-                        return {
-                            message:publicMessage.loggedIn,
-                            accessToken
+    async checkOtp(code: string) {
+        const token = this.request.cookies?.[CookieKeys.OTP]
+        if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode)
+        const { userId } = this.tokenService.verifyOtpToken(token)
+        const otp = await this.otpRepository.findOneBy({ userId })
+        if (!otp) throw new UnauthorizedException(AuthMessage.loginAgain)
+        if (otp.expiresIn < new Date()) throw new UnauthorizedException(AuthMessage.TryAgain)
+        if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryAgain)
+        const accessToken = this.tokenService.createAccessToken({ userId })
+        if (otp.method === AuthMethod.Email) {
+            await this.userRepository.update({ id: userId }, { verify_email: true })
+        } else if (otp.method === AuthMethod.phone) {
+            await this.userRepository.update({ id: userId }, { verify_phone: true })
+        }
+        return {
+            message: publicMessage.loggedIn,
+            accessToken
 
-                        }
+        }
 
     }
 
@@ -92,13 +93,13 @@ export class AuthService {
         const validatedUsername = this.usernameValidator(method, username);
         let user: UserEntity = await this.checkExistUser(method, validatedUsername)
         if (!user) { throw new UnauthorizedException(AuthMessage.NotFoundAccount) }
-        const otp = await this.createAndSaveOtp(user.id,method)
-        const token=this.tokenService.createOtpToken({userId:user.id})
+        const otp = await this.createAndSaveOtp(user.id, method)
+        const token = this.tokenService.createOtpToken({ userId: user.id })
         return {
             token,
             code: otp.code,
-         
-           
+
+
         }
 
 
@@ -116,15 +117,15 @@ export class AuthService {
         user = await this.userRepository.save(user)
         user.username = `Us-${user.id}`
         await this.userRepository.save(user)
-        const otp = await this.createAndSaveOtp(user.id,method)
+        const otp = await this.createAndSaveOtp(user.id, method)
 
-        const token=this.tokenService.createOtpToken({userId:user.id})
+        const token = this.tokenService.createOtpToken({ userId: user.id })
 
-        return { 
+        return {
 
             code: otp.code,
             token
-            }
+        }
     }
 
     usernameValidator(method: AuthMethod, username: string) {
@@ -167,7 +168,7 @@ export class AuthService {
     }
 
 
-    async createAndSaveOtp(userId: number ,method:AuthMethod) {  
+    async createAndSaveOtp(userId: number, method: AuthMethod) {
         const code = randomInt(10000, 99999).toString()
         const expiresIn = new Date(new Date().getTime() + 1000 * 60 * 2)
         let existOtp = false
@@ -176,7 +177,7 @@ export class AuthService {
             existOtp = true
             otp.code = code
             otp.expiresIn = expiresIn
-            otp.method=method
+            otp.method = method
         } else {
             otp = this.otpRepository.create({
                 code,
@@ -195,21 +196,51 @@ export class AuthService {
 
     }
 
-    async validationAccessToken(token:string){
-        const {userId}= this.tokenService.VerifyAccessToken(token)
-        const user=await this.userRepository.findOneBy({id:userId})
-        if(!user)throw new UnauthorizedException(AuthMessage.loginAgain);
+    async validationAccessToken(token: string) {
+        const { userId } = this.tokenService.VerifyAccessToken(token)
+        const user = await this.userRepository.findOneBy({ id: userId })
+        if (!user) throw new UnauthorizedException(AuthMessage.loginAgain);
         return user
-        
+
     }
 
 
-    async sendOtp(method:AuthMethod,username:string,code:string){
-        if(method ===AuthMethod.Email){
+    async sendOtp(method: AuthMethod, username: string, code: string) {
+        if (method === AuthMethod.Email) {
             //send email
-         }else if(method ===AuthMethod.phone){
-            await this.kavenegarService.sendVerificationSms(username,code)
-         }
+        } else if (method === AuthMethod.phone) {
+            await this.kavenegarService.sendVerificationSms(username, code)
+        }
+    }
+
+
+    async GoogleAuth(userData: googleUser) {
+        const { email, firstName, lastName } = userData
+        let user = await this.userRepository.findOneBy({ email })
+        let token:string
+        if (user) {
+            let token = await this.tokenService.createEmailToken({ email })
+        }else{
+            user=await this.userRepository.create({
+                email,
+                verify_email:true,
+                username:email.split("@")['0'] + RandomId()
+
+            })
+            user=await this.userRepository.save(user)
+            let profile=await this.profileRepository.create({
+                userId:user.id,
+                nick_name:`${firstName} $${lastName}`
+            })
+            profile= await this.profileRepository.save(profile)
+            user.profileId=profile.id
+            await this.userRepository.save(user)
+             token=await this.tokenService.createAccessToken({userId:user.id})
+        }
+        return{
+            token
+        }
+
     }
 
 

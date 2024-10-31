@@ -2,6 +2,7 @@ import { Controller, Get, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags } from "@nestjs/swagger";
 import { request } from "express";
+import { AuthService } from "./auth.service";
 
 
 
@@ -10,6 +11,7 @@ import { request } from "express";
 @ApiTags('Google Auth')
 @UseGuards(AuthGuard('google'))
 export class GoogleAuthController{
+    constructor(private authService:AuthService){}
     @Get()
     googleLogin(@Req() req){
 
@@ -17,6 +19,7 @@ export class GoogleAuthController{
 
     @Get('/redirect')
     googleRedirect(@Req() req){
-         return req.user
+         const userData= req.user
+         return this.authService.GoogleAuth(userData)
     }
 }
