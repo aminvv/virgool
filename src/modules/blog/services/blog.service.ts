@@ -1,7 +1,7 @@
 import { BadRequestException, forwardRef, Get, Inject, Injectable, NotFoundException, Query, Scope, Search } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from '../entities/blog.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBlogDto, filterBlogDto, updateBlogDto } from '../dto/blog.dto';
 import { createSlug, RandomId } from 'src/common/utils/functions.util';
 import { REQUEST } from '@nestjs/core';
@@ -30,6 +30,7 @@ export class BlogService {
         @InjectRepository(CommentsEntity) private blogCommentRepository: Repository<CommentsEntity>
         , private categoryService: CategoryService
         , private blogCommentService: BlogCommentService
+        , private dataSource: DataSource
     ) { }
     async create(blogDto: CreateBlogDto) {
         const user = this.request.user
@@ -283,7 +284,7 @@ export class BlogService {
 
 
     async likeToggle(blogId: number) {
-        const { id: userId } = this.request.user 
+        const { id: userId } = this.request.user
         const blog = await this.checkExistBlogById(blogId)
         const isLiked = await this.blogLikeRepository.findOneBy({ userId, blogId })
         let message = publicMessage.like
@@ -297,7 +298,7 @@ export class BlogService {
         return {
             message
         }
- 
+
     }
 
 
@@ -318,7 +319,7 @@ export class BlogService {
         }
 
     }
- 
+
 
 
     async findOneBySlug(slug: string, paginationDto: paginationDto) {
@@ -340,21 +341,56 @@ export class BlogService {
         // .getOne();
 
         if (!blog) throw new NotFoundException(NotFoundMessage.NotFoundPost)
-            const commentsData = await this.blogCommentService.findCommendOfBlog(blog.id, paginationDto)
-                let isLiked=false
-                let isBookmarked=false                
-        if(userId && !isNaN(userId) && userId>0 ){
-             isLiked = !!await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id })
-             isBookmarked = !! await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id })
+        const commentsData = await this.blogCommentService.findCommendOfBlog(blog.id, paginationDto)
+        let isLiked = false
+        let isBookmarked = false
+        if (userId && !isNaN(userId) && userId > 0) {
+            isLiked = !!await this.blogLikeRepository.findOneBy({ userId, blogId: blog.id })
+            isBookmarked = !! await this.blogBookmarkRepository.findOneBy({ userId, blogId: blog.id })
         }
-        return {
+        const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
+        
+        const blogSlug=blog.id
+        const suggestBlogs = await queryRunner.query(`
+            WITH suggested_blogs AS (
+                SELECT blog.*,
+                    json_build_object(
+                        'username', u.username,
+                        'author_name', p.nick_name,
+                        'image', p.image_profile
+                    ) AS author,
+                    array_agg(DISTINCT cat.title) AS categories,
+                    (
+                        SELECT COUNT(*) FROM blog_likes
+                        WHERE blog_likes."blogId" = blog.id
+                    ) AS likes,
+                    (
+                        SELECT COUNT(*) FROM blog_comments
+                        WHERE blog_comments."blogId" = blog.id
+                    ) AS comments,
+                    (
+                        SELECT COUNT(*) FROM blog_bookmarks
+                        WHERE blog_bookmarks."blogId" = blog.id
+                    ) AS bookmarks
+                FROM blog
+                LEFT JOIN public.user u ON blog."authorId" = u.id
+                LEFT JOIN profile p ON p."userId" = u.id
+                LEFT JOIN blog_Category bc ON blog.id = bc."blogId"
+                LEFT JOIN category cat ON bc."categoryId" = cat.id
+                WHERE blog.id != $1
+                GROUP BY blog.id, u.username, p.nick_name, p.image_profile
+                ORDER BY RANDOM()
+                LIMIT 3
+            )
+            SELECT * FROM suggested_blogs
+        `,[blogSlug]);
+        
+        return { 
             blog,
-            isLiked,
+            isLiked, 
             isBookmarked,
             commentsData,
-
-        }
-
-
-    }
-}
+            suggestBlogs,
+        };
+    }}
