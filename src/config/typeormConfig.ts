@@ -1,4 +1,6 @@
+import { BaseEntityCustom } from "src/common/abstracts/base.entity";
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import path, { join } from "path";
 import { BlogCategoryEntity } from "src/modules/blog/entities/blog.category.entity";
 import { BlogEntity } from "src/modules/blog/entities/blog.entity";
 import { BookmarksEntity } from "src/modules/blog/entities/bookmark.entity";
@@ -13,6 +15,14 @@ import { UserEntity } from "src/modules/user/entities/user.entity";
 
 export function TypeOrmConfig(): TypeOrmModuleOptions {
     const { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USERNAME, } = process.env
+    console.log({
+        host: DB_HOST,
+        port: DB_PORT,
+        database: DB_NAME,
+        username: DB_USERNAME,
+        password: DB_PASSWORD,
+    });
+
     return {
         host: DB_HOST,
         port: DB_PORT,
@@ -20,9 +30,8 @@ export function TypeOrmConfig(): TypeOrmModuleOptions {
         username: DB_USERNAME,
         password: DB_PASSWORD,
         autoLoadEntities: false,
-        entities: [UserEntity,OtpEntity,ProfileEntity,CategoryEntity,BlogLikesEntity,BlogEntity,CommentsEntity,BookmarksEntity,BlogCategoryEntity,ImageEntity,followEntity],
+        entities: [join(__dirname, "../modules/**/entities/*.entity{.ts,.js}"),BaseEntityCustom],
         synchronize: false,
         type: 'postgres',
     }
 }
-   

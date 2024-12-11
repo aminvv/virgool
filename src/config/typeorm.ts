@@ -1,30 +1,39 @@
-import { config } from 'dotenv';
-import { join } from 'path';
-import { BlogCategoryEntity } from "src/modules/blog/entities/blog.category.entity";
-import { BlogEntity } from "src/modules/blog/entities/blog.entity";
-import { BookmarksEntity } from "src/modules/blog/entities/bookmark.entity";
-import { CommentsEntity } from "src/modules/blog/entities/comment.entity";
-import { BlogLikesEntity } from "src/modules/blog/entities/like.entity";
-import { CategoryEntity } from "src/modules/category/entities/category.entity";
-import { ImageEntity } from "src/modules/image/entities/image.entity";
-import { followEntity } from "src/modules/user/entities/follow.entity";
-import { OtpEntity } from "src/modules/user/entities/otp.entity";
-import { ProfileEntity } from "src/modules/user/entities/profile.entity";
-import { UserEntity } from "src/modules/user/entities/user.entity";
+
+import { config } from "dotenv";
+import  { join } from "path";
 import { DataSource } from "typeorm";
 
-config({ path: join(process.cwd(), ".env") });
-const {DB_HO5ST,DB_PASSWORD,DB_PORT,DB_USERNAME,DB_NAME}=process.env
-let dataSource= new DataSource({
-    type:"postgres",
-    host:DB_HO5ST,
-    port:DB_PORT,
-    username:DB_USERNAME,
-    password:DB_PASSWORD,
+config()
+config({ path: join(process.cwd(), ".env") })
+const { DB_HOST, DB_NAME, DB_PORT, DB_PASSWORD, DB_USERNAME, } = process.env
+
+
+console.log(
+    {
+        type: "postgres",
+        host: DB_HOST,
+        password: DB_PASSWORD, 
+        username: DB_USERNAME,
+        database:DB_NAME,
+        port:DB_PORT,  
+    }
+);
+
+
+let dataSource = new DataSource({
+    type: "postgres",
+    host: DB_HOST,
+    password: DB_PASSWORD,
+    username: DB_USERNAME,
     database:DB_NAME,
+    port:+DB_PORT,
     synchronize:false,
-    entities :[UserEntity,OtpEntity,ProfileEntity,CategoryEntity,BlogLikesEntity,BlogEntity,CommentsEntity,BookmarksEntity,BlogCategoryEntity,ImageEntity,followEntity],
-    migrations:['dist/migrations/*{.ts,.js}'],
+    entities: [join(__dirname, "../modules/**/entities/*.entity{.ts,js}"),],
+    migrations:["dist/migration/*{.ts,.js}"],
     migrationsTableName:"virgool_migration_db"
+
+
+
+
 })
 export default dataSource

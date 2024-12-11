@@ -69,7 +69,7 @@ export class UserController {
 
 
    @Post('/block')
-  //  @CanAccess(Roles.Admin)
+   @CanAccess(Roles.Admin)
    @ApiConsumes(swaggerConsumes.UrlEncoded,swaggerConsumes.Json)
    blokeToggle(@Body() blokeDto:blokeDto){
     return this.userService.blokeToggle(blokeDto)
