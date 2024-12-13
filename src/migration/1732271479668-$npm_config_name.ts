@@ -40,6 +40,8 @@ export class  $npmConfigName1732271479668 implements MigrationInterface {
                 isNullable:true,
                 isUnique:true,
             }))}
+            // Editing column information using raw query
+            // await queryRunner.query(`ALTER TABLE "user" RENAME "mobile"TO"phone"`)
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
