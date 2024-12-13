@@ -8,7 +8,7 @@ export class  $npmConfigName1732271479668 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.createTable(
             new Table({
-                name:EntityName.User,
+                name:"User",
                 columns:[
                     {name:"id",isPrimary:true, type:"serial",isNullable:true},
                     {name:"username", type:"character varying(50)",isNullable:true,isUnique:true},
@@ -24,7 +24,14 @@ export class  $npmConfigName1732271479668 implements MigrationInterface {
                     {name:"created_at", type:"timestamp",default:"now()"},
                 ]
             })
+            ,true  //not user folder write true if notExist
         )
+            //@ts-ignore
+            await queryRunner.addColumn("User",{name:"balance",type:"numeric",isNullable:true ,default:0})
+
+                                     // To manually delete a database
+            // const balance=await queryRunner.hasColumn(EntityName.User,"balance")
+            // if(!balance) await queryRunner.addColumn(EntityName.User,{name:"balance",type:"numeric",isNullable:true ,default:0})
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
@@ -32,6 +39,9 @@ export class  $npmConfigName1732271479668 implements MigrationInterface {
         // if(userTable) await queryRunner.dropTable(EntityName.User)
         // or userTable ===>>> (true)
         await queryRunner.dropTable(EntityName.User,true)
+
+        // if not exist   .dropTable  write=
+                                            //await queryRunner.dropColumn(EntityName.User,"balance")
 
     }
 

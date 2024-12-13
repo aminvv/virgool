@@ -33,6 +33,10 @@ export class UserEntity extends BaseEntityCustom {
     status:string
 
 
+    @Column({ nullable: true ,type:"numeric" ,default:0 })
+    balance:number
+
+
     @Column({ nullable: true, default: false })
     verify_email: boolean
 
