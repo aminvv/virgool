@@ -64,15 +64,14 @@ export class UserEntity extends BaseEntityCustom {
 
     @Column({ default: Roles.User })
     role: string
+    
+    @Column({ nullable: true })
+    profileId: number
+
 
     @OneToOne(() => OtpEntity, otp => otp.user, { nullable: true })
     @JoinColumn({ name: "otpId" })
     otp: OtpEntity
-
-
-
-    @Column({ nullable: true })
-    profileId: number
 
     @OneToOne(() => ProfileEntity, profile => profile.user)
     @JoinColumn({ name: "profileId" })
